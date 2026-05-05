@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Metafields Change Log</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+
+/* ══ CSS Variables ══════════════════════════════════════════════════════════ */
+:root {
+  --bg:           #f3f4f6;
+  --surface:      #ffffff;
+  --surface-2:    #f9fafb;
+  --border:       #e5e7eb;
+  --border-strong:#d1d5db;
+  --text-primary: #111827;
+  --text-secondary:#6b7280;
+  --text-muted:   #6b7280;
+  --accent:       #2563eb;
+  --accent-light: #eff6ff;
+  --accent-dark:  #1d4ed8;
+  --green:        #16a34a;
+  --green-light:  #f0fdf4;
+  --green-border: #86efac;
+  --red:          #dc2626;
+  --red-light:    #fef2f2;
+  --red-border:   #fca5a5;
+  --amber:        #d97706;
+  --amber-light:  #fffbeb;
+  --radius:       12px;
+  --radius-sm:    8px;
+  --shadow:       0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+  --font-sans:    'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:    'IBM Plex Mono', monospace;
+
+  /* Key badge colors */
+  --tag-manual:    #7c3aed; --tag-manual-bg:  #f5f3ff;
+  --tag-status:    #0891b2; --tag-status-bg:  #ecfeff;
+  --tag-payment:   #059669; --tag-payment-bg: #ecfdf5;
+  --tag-courier:   #d97706; --tag-courier-bg: #fffbeb;
+}
+
+/* ══ Reset ══════════════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* ══ App Shell — Header ══════════════════════════════════════════════════════ */
+.app-header {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 16px;
+  margin: 12px 12px 0;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.app-title         { display: flex; align-items: center; gap: 10px; }
+.app-icon          { font-size: 22px; }
+.app-title-text h1 { font-size: 15px; font-weight: 700; line-height: 1.2; }
+.app-title-text span { font-size: 11px; color: var(--text-muted); }
+.app-header-btns   { display: flex; align-items: center; gap: 6px; }
+
+/* ── Base Header Button ── */
+.hbtn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 12px; font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.hbtn:hover    { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.hbtn:disabled { opacity: .5; cursor: not-allowed; }
+.hbtn.settings-configured { border-color: var(--green); color: var(--green); background: var(--green-light); }
+.hbtn.ver-btn  {
+  border-color: #bfdbfe; color: #1d4ed8; background: #eff6ff;
+  font-family: var(--font-mono); font-weight: 700;
+}
+.hbtn.ver-btn:hover { background: #dbeafe; border-color: #93c5fd; color: #1d4ed8; }
+
+/* Active user badge */
+.hbtn.active-user { border-color: var(--green); color: var(--green); background: var(--green-light); }
+
+/* ══ Main Content ════════════════════════════════════════════════════════════ */
+.main { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+
+/* ══ Filters Card ════════════════════════════════════════════════════════════ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.filters-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.filter-group { display: flex; flex-direction: column; gap: 5px; }
+.filter-label {
+  font-size: 10px; font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: .5px;
+}
+.filter-input {
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+  background: var(--surface);
+  outline: none;
+  direction: ltr;
+  transition: border-color .15s;
+}
+.filter-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+.filter-input.active { border-color: var(--accent); background: var(--accent-light); }
+#filterOrder  { width: 160px; }
+#filterKey    { width: 160px; }
+#filterDate   { width: 150px; }
+.filter-hint  { font-size: 10px; color: var(--text-muted); }
+
+.filters-actions { display: flex; gap: 6px; align-items: center; margin-right: auto; }
+
+/* ══ Stats Row ═══════════════════════════════════════════════════════════════ */
+.stats-row {
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+.stat-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  display: flex; flex-direction: column; gap: 2px;
+  min-width: 120px;
+}
+.stat-value { font-size: 24px; font-weight: 700; font-family: var(--font-mono); color: var(--accent); direction: ltr; }
+.stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); }
+
+/* ══ Table Card ══════════════════════════════════════════════════════════════ */
+.table-card { overflow: hidden; }
+.table-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 0 12px;
+}
+.table-count {
+  font-size: 12px; color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+.table-wrap { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  background: var(--surface-2);
+  border-bottom: 2px solid var(--border);
+  padding: 10px 12px;
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .5px;
+  color: var(--text-secondary);
+  text-align: right; white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr.data-row:hover { background: var(--surface-2); }
+tbody td { padding: 10px 12px; vertical-align: middle; }
+
+/* Section divider row */
+tr.section-divider td {
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border-strong);
+  border-top: 2px solid var(--border-strong);
+  padding: 6px 12px;
+  font-size: 11px; font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* Badges */
+.order-badge {
+  font-family: var(--font-mono);
+  font-size: 12px; font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-light);
+  padding: 3px 8px; border-radius: 5px;
+  direction: ltr; display: inline-block;
+}
+.key-badge {
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 600;
+  padding: 3px 8px; border-radius: 5px;
+  direction: ltr; display: inline-block;
+  white-space: nowrap;
+}
+.key-manual_status  { background: var(--tag-manual-bg);  color: var(--tag-manual); }
+.key-status_2_r_e   { background: var(--tag-status-bg);  color: var(--tag-status); }
+.key-payment        { background: var(--tag-payment-bg); color: var(--tag-payment); }
+.key-courier        { background: var(--tag-courier-bg); color: var(--tag-courier); }
+
+.value-cell {
+  font-family: var(--font-mono); font-size: 12px;
+  max-width: 200px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+  display: block;
+}
+.ts-date { font-family: var(--font-mono); font-size: 12px; color: var(--text-primary); direction: ltr; }
+.ts-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); direction: ltr; }
+
+/* ══ Empty / Loading States ══════════════════════════════════════════════════ */
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-muted);
+}
+.empty-icon { font-size: 32px; margin-bottom: 8px; }
+.empty-text { font-size: 13px; line-height: 1.6; }
+
+.loading-box {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-muted);
+}
+.spinner {
+  display: inline-block;
+  width: 22px; height: 22px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  margin-bottom: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══ Buttons ═════════════════════════════════════════════════════════════════ */
+.btn {
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  border: 1.5px solid transparent;
+}
+.btn-primary  { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+.btn-secondary { background: var(--surface); color: var(--text-secondary); border-color: var(--border-strong); }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.btn-danger   { background: var(--red-light); color: var(--red); border-color: var(--red-border); font-size: 11px; padding: 4px 10px; }
+.btn-danger:hover { background: var(--red); color: #fff; }
+
+/* ══ Modal — shared ══════════════════════════════════════════════════════════ */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.35);
+  z-index: 400;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: var(--radius);
+  width: 100%; max-width: 440px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.18);
+  animation: modalIn .2s ease;
+  overflow: hidden;
+}
+@keyframes modalIn { from{transform:scale(.95);opacity:0} to{transform:scale(1);opacity:1} }
+.modal-hdr {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 15px; font-weight: 700;
+}
+.modal-close-x {
+  background: none; border: none;
+  font-size: 16px; line-height: 1;
+  cursor: pointer; padding: 3px 7px;
+  border-radius: var(--radius-sm);
+  color: var(--red); transition: background .15s;
+}
+.modal-close-x:hover { background: var(--red-light); }
+.modal-body { padding: 18px; }
+.modal-ftr  { padding: 12px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ══ Settings Modal ══════════════════════════════════════════════════════════ */
+.settings-field  { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.settings-field:last-child { margin-bottom: 0; }
+.settings-label  {
+  font-size: 10px; font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: .5px;
+}
+.settings-input {
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  font-family: var(--font-mono);
+  font-size: 12px; color: var(--text-primary);
+  outline: none; width: 100%;
+  direction: ltr; background: var(--surface);
+  transition: border-color .15s;
+}
+.settings-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+
+/* ══ Confirm Modal ════════════════════════════════════════════════════════════ */
+.confirm-text { font-size: 14px; color: var(--text-primary); line-height: 1.6; }
+
+/* ══ Changelog Modal ════════════════════════════════════════════════════════ */
+.changelog-modal { max-width: 500px; max-height: 80vh; display: flex; flex-direction: column; }
+.changelog-body  { overflow-y: auto; padding: 20px; flex: 1; }
+.cl-version-block { padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+.cl-version-block:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+.cl-version-row   { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.cl-ver-badge {
+  font-family: var(--font-mono);
+  font-size: 12px; font-weight: 700;
+  padding: 3px 10px; border-radius: 5px;
+  background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;
+  direction: ltr;
+}
+.cl-ver-badge.old { background: var(--surface-2); color: var(--text-secondary); border-color: var(--border-strong); }
+.cl-ver-date { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); direction: ltr; }
+.cl-items { list-style: none; display: flex; flex-direction: column; gap: 5px; padding-bottom: 0; }
+.cl-item  { display: flex; gap: 8px; font-size: 13px; align-items: flex-start; }
+.cl-tag   {
+  font-size: 11px; font-weight: 700;
+  padding: 2px 7px; border-radius: 4px;
+  white-space: nowrap; flex-shrink: 0;
+  align-self: flex-start; margin-top: 2px;
+}
+.cl-tag.new    { background: #f0fdf4; color: #15803d; }
+.cl-tag.fix    { background: #fef2f2; color: #dc2626; }
+.cl-tag.change { background: #fffbeb; color: #92400e; }
+
+/* ══ Toast ═══════════════════════════════════════════════════════════════════ */
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: #1a1d27; color: #fff;
+  padding: 10px 20px; border-radius: 8px;
+  font-size: 13px; font-weight: 500;
+  opacity: 0; transition: opacity .25s;
+  z-index: 999; pointer-events: none;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+.toast.error { background: var(--red); }
+.toast.success { background: var(--green); }
+
+/* ══ Login Overlay ═══════════════════════════════════════════════════════════ */
+.login-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 500;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.login-overlay.hidden { display: none; }
+.login-box {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 24px;
+  width: 100%; max-width: 360px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.25);
+  animation: modalIn .25s ease;
+}
+.login-title { font-size: 17px; font-weight: 700; text-align: center; margin-bottom: 4px; }
+.login-sub   { font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 20px; }
+
+/* Select */
+.login-select {
+  width: 100%; border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  font-family: var(--font-sans); font-size: 13px;
+  color: var(--text-primary); background: var(--surface);
+  outline: none; margin-bottom: 16px;
+  transition: border-color .15s;
+}
+.login-select:focus { border-color: var(--accent); }
+
+/* PIN dots */
+.pin-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-secondary); margin-bottom: 8px; display: block; text-align: center; }
+.pin-dots  { display: flex; justify-content: center; gap: 10px; margin-bottom: 16px; }
+.pin-dot   {
+  width: 40px; height: 40px; border: 2px solid var(--border-strong);
+  border-radius: var(--radius-sm); background: var(--surface-2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: var(--text-primary);
+  transition: all .15s;
+}
+.pin-dot.filled { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+
+/* PIN keypad */
+.pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pin-key {
+  padding: 12px; text-align: center;
+  background: var(--surface-2); border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono); font-size: 16px; font-weight: 600;
+  cursor: pointer; transition: all .1s;
+  color: var(--text-primary);
+}
+.pin-key:hover  { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+.pin-key:active { transform: scale(.95); }
+.pin-key.del    { color: var(--red); }
+.pin-key.clear  { color: var(--text-muted); font-size: 13px; }
+
+/* Login error */
+.login-error {
+  font-size: 12px; color: var(--red);
+  text-align: center; margin-bottom: 10px;
+  min-height: 16px;
+}
+
+/* ── First time PIN confirm ── */
+#stepConfirmPin { display: none; }
+.step-back-btn {
+  background: none; border: none; color: var(--accent);
+  font-family: var(--font-sans); font-size: 12px;
+  cursor: pointer; padding: 0; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 4px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ══ Login Overlay ═══════════════════════════════════════════════════════ -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+
+    <div style="display:flex;justify-content:flex-start;margin-bottom:4px;">
+      <button id="loginSettingsBtn" onclick="openSettingsFromLogin()" style="display:flex;align-items:center;gap:4px;padding:5px 10px;border:1px solid var(--border-strong);background:var(--surface-2);border-radius:var(--radius-sm);font-family:inherit;font-size:11px;font-weight:600;color:var(--text-secondary);cursor:pointer;">
+        ⚙️ الإعدادات
+      </button>
+    </div>
+
+    <div style="text-align:center;margin-bottom:8px;font-size:28px;">📋</div>
+    <div class="login-title">Metafields Change Log</div>
+    <div class="login-sub" id="loginSub">سجّل الدخول للمتابعة</div>
+
+    <!-- Step Main -->
+    <div id="stepMain">
+      <div class="settings-field" style="margin-bottom:12px;">
+        <label class="settings-label">اختر اسمك</label>
+        <select class="login-select" id="loginUsername" onchange="onUsernameChange()">
+          <option value="">— اختر —</option>
+        </select>
+      </div>
+
+      <div id="pinSection" style="display:none;">
+        <span class="pin-label" id="pinPromptLabel">أدخل الـ PIN</span>
+        <div class="pin-dots">
+          <div class="pin-dot" id="pd0">·</div>
+          <div class="pin-dot" id="pd1">·</div>
+          <div class="pin-dot" id="pd2">·</div>
+          <div class="pin-dot" id="pd3">·</div>
+        </div>
+
+        <div class="login-error" id="loginError"></div>
+
+        <div class="pin-keypad" id="pinKeypad">
+          <button class="pin-key" onclick="pinPress('1')">1</button>
+          <button class="pin-key" onclick="pinPress('2')">2</button>
+          <button class="pin-key" onclick="pinPress('3')">3</button>
+          <button class="pin-key" onclick="pinPress('4')">4</button>
+          <button class="pin-key" onclick="pinPress('5')">5</button>
+          <button class="pin-key" onclick="pinPress('6')">6</button>
+          <button class="pin-key" onclick="pinPress('7')">7</button>
+          <button class="pin-key" onclick="pinPress('8')">8</button>
+          <button class="pin-key" onclick="pinPress('9')">9</button>
+          <button class="pin-key clear" onclick="clearPin()">مسح</button>
+          <button class="pin-key" onclick="pinPress('0')">0</button>
+          <button class="pin-key del" onclick="delPin()">⌫</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step Confirm PIN (first time) -->
+    <div id="stepConfirmPin">
+      <button class="step-back-btn" onclick="backToMainStep()">← رجوع</button>
+      <span class="pin-label">أكّد الـ PIN</span>
+      <div class="pin-dots">
+        <div class="pin-dot" id="cd0">·</div>
+        <div class="pin-dot" id="cd1">·</div>
+        <div class="pin-dot" id="cd2">·</div>
+        <div class="pin-dot" id="cd3">·</div>
+      </div>
+      <div class="login-error" id="confirmError"></div>
+      <div class="pin-keypad">
+        <button class="pin-key" onclick="confirmPress('1')">1</button>
+        <button class="pin-key" onclick="confirmPress('2')">2</button>
+        <button class="pin-key" onclick="confirmPress('3')">3</button>
+        <button class="pin-key" onclick="confirmPress('4')">4</button>
+        <button class="pin-key" onclick="confirmPress('5')">5</button>
+        <button class="pin-key" onclick="confirmPress('6')">6</button>
+        <button class="pin-key" onclick="confirmPress('7')">7</button>
+        <button class="pin-key" onclick="confirmPress('8')">8</button>
+        <button class="pin-key" onclick="confirmPress('9')">9</button>
+        <button class="pin-key clear" onclick="clearConfirm()">مسح</button>
+        <button class="pin-key" onclick="confirmPress('0')">0</button>
+        <button class="pin-key del" onclick="delConfirm()">⌫</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ App Header ══════════════════════════════════════════════════════════ -->
+<div class="app-header">
+  <div class="app-title">
+    <div class="app-icon">📋</div>
+    <div class="app-title-text">
+      <h1>Metafields Change Log</h1>
+      <span>سجل تغييرات الـ Metafields</span>
+    </div>
+  </div>
+  <div class="app-header-btns">
+    <!-- زرار الموظف الحالي -->
+    <button class="hbtn active-user" id="activeUserBtn" onclick="doLogout()" style="display:none;">👤 —</button>
+    <!-- Changelog — إلزامي -->
+    <button class="hbtn ver-btn" onclick="openChangelog()">v2.0.0 📋</button>
+    <!-- الإعدادات — إلزامي، آخر زرار -->
+    <button class="hbtn" id="settingsBtn" onclick="openSettings()">⚙️ الإعدادات</button>
+  </div>
+</div>
+
+<!-- ══ Main ════════════════════════════════════════════════════════════════ -->
+<div class="main">
+
+  <!-- Filters -->
+  <div class="card">
+    <div class="filters-bar">
+      <div class="filter-group">
+        <span class="filter-label">Order Name / ID</span>
+        <input class="filter-input" id="filterOrder" type="text" />
+        <span class="filter-hint">اضغط Enter للبحث</span>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Metafield Key</span>
+        <select class="filter-input" id="filterKey">
+          <option value="">All keys</option>
+          <option value="manual_status">manual_status</option>
+          <option value="status_2_r_e">status_2_r_e</option>
+          <option value="payment">payment</option>
+          <option value="courier">courier</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Date</span>
+        <input class="filter-input" id="filterDate" type="date" />
+      </div>
+      <div class="filters-actions">
+        <button class="btn btn-secondary" onclick="clearFilters()">مسح</button>
+        <button class="btn btn-secondary" onclick="loadLogs()">↻ تحديث</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row" id="statsRow" style="display:none;">
+    <div class="stat-card">
+      <span class="stat-value" id="statTotal">0</span>
+      <span class="stat-label">Total Entries</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value" id="statOrders">0</span>
+      <span class="stat-label">Unique Orders</span>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card table-card">
+    <div class="table-header">
+      <span class="table-count" id="tableCount">—</span>
+    </div>
+    <div class="table-wrap" id="tableBody">
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-text">اختر فلتر للبحث<br>رقم الأوردر أو الـ Key أو التاريخ</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ══ Settings Modal ══════════════════════════════════════════════════════ -->
+<div class="overlay" id="settingsOverlay" onclick="closeSettingsOnBackdrop(event)">
+  <div class="modal">
+    <div class="modal-hdr">
+      ⚙️ الإعدادات
+      <button class="modal-close-x" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-field">
+        <label class="settings-label">WORKER URL</label>
+        <input type="text" class="settings-input" id="cfgUrl" />
+      </div>
+      <div class="settings-field">
+        <label class="settings-label">WORKER SECRET</label>
+        <input type="password" class="settings-input" id="cfgSecret" />
+      </div>
+      <div class="settings-field">
+        <label class="settings-label">ADMIN WORKER URL</label>
+        <input type="text" class="settings-input" id="cfgAdminUrl" />
+      </div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn btn-secondary" onclick="closeSettings()">إلغاء</button>
+      <button class="btn btn-primary" onclick="saveSettings()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Confirm Delete Modal ════════════════════════════════════════════════ -->
+<div class="overlay" id="confirmOverlay" onclick="closeConfirmOnBackdrop(event)">
+  <div class="modal">
+    <div class="modal-hdr">
+      تأكيد الحذف
+      <button class="modal-close-x" onclick="closeConfirm()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="confirm-text" id="confirmBody">—</p>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn btn-secondary" onclick="closeConfirm()">إلغاء</button>
+      <button class="btn btn-danger" id="confirmActionBtn">حذف</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Changelog Modal ════════════════════════════════════════════════════ -->
+<div class="overlay" id="changelogOverlay" onclick="closeChangelogOnBackdrop(event)">
+  <div class="modal changelog-modal">
+    <div class="modal-hdr">
+      📋 سجل التحديثات
+      <button class="modal-close-x" onclick="closeChangelog()">✕</button>
+    </div>
+    <div class="changelog-body">
+
+      <div class="cl-version-block">
+        <div class="cl-version-row">
+          <span class="cl-ver-badge">v2.0.0</span>
+          <span class="cl-ver-date">05-05-2026</span>
+        </div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>شاشة Login كاملة — D1 Auth (Username + PIN stateless)</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>App Shell Standards — هيدر موحّد مع زرار الإعدادات والـ Changelog</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>زرار الموظف الحالي في الهيدر مع Logout</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>Auth header: Authorization: Bearer بدل x-worker-secret</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>الخط الرئيسي: Noto Sans Arabic بدل IBM Plex Mono</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>توقيت القاهرة UTC+3 (كان UTC+2)</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>localStorage keys: mflog_worker_url / mflog_worker_secret / admin_worker_url</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>CSS Variables موحّدة مع باقي أدوات EcomModa</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>Worker: إضافة D1 Auth endpoints + get_employees</span></li>
+        </ul>
+      </div>
+
+      <div class="cl-version-block">
+        <div class="cl-version-row">
+          <span class="cl-ver-badge old">v1.0.0</span>
+          <span class="cl-ver-date">01-01-2026</span>
+        </div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>إصدار أولي — سجل تغييرات الـ Metafields عبر KV</span></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ Toast ══════════════════════════════════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ── localStorage keys ─────────────────────────────────────────────────────────
+const LS_URL       = 'mflog_worker_url';
+const LS_SECRET    = 'mflog_worker_secret';
+const LS_ADMIN_URL = 'admin_worker_url'; // مشترك بين كل الأدوات
+
+// ── Auth state — memory فقط ───────────────────────────────────────────────────
+let currentEmployee = null; // { username, displayName }
+
+// ── PIN state ─────────────────────────────────────────────────────────────────
+let pinBuffer        = '';
+let firstPin         = '';
+let confirmPinBuffer = '';
+let currentMode      = 'verify'; // 'verify' | 'first_time'
+let pendingUsername  = null;
+
+// ── Delete state ──────────────────────────────────────────────────────────────
+let pendingDeleteFn = null;
+
+// ══ Config ═══════════════════════════════════════════════════════════════════
+
+function getConfig() {
+  return {
+    url:      localStorage.getItem(LS_URL)       || '',
+    secret:   localStorage.getItem(LS_SECRET)    || '',
+    adminUrl: localStorage.getItem(LS_ADMIN_URL) || '',
+  };
+}
+
+function isConfigured() {
+  const c = getConfig();
+  return !!(c.url && c.secret);
+}
+
+function updateSettingsBtn() {
+  document.getElementById('settingsBtn')
+    .classList.toggle('settings-configured', isConfigured());
+}
+
+function updateLoginSettingsBtn() {
+  const btn = document.getElementById('loginSettingsBtn');
+  if (!btn) return;
+  if (isConfigured()) {
+    btn.style.borderColor = 'var(--green)';
+    btn.style.color       = 'var(--green)';
+    btn.style.background  = 'var(--green-light)';
+  } else {
+    btn.style.borderColor = 'var(--red)';
+    btn.style.color       = 'var(--red)';
+    btn.style.background  = 'var(--red-light)';
+  }
+}
+
+// ══ Settings Modal ════════════════════════════════════════════════════════════
+
+function openSettings() {
+  const c = getConfig();
+  document.getElementById('cfgUrl').value      = c.url      || '';
+  document.getElementById('cfgSecret').value   = c.secret   || '';
+  document.getElementById('cfgAdminUrl').value = c.adminUrl || '';
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+function closeSettings() { document.getElementById('settingsOverlay').classList.remove('open'); }
+function closeSettingsOnBackdrop(e) { if (e.target === e.currentTarget) closeSettings(); }
+function openSettingsFromLogin()    { openSettings(); }
+
+function saveSettings() {
+  const url      = document.getElementById('cfgUrl').value.trim();
+  const secret   = document.getElementById('cfgSecret').value.trim();
+  const adminUrl = document.getElementById('cfgAdminUrl').value.trim();
+
+  if (!url || !secret) { showToast('الرجاء إدخال الـ URL والـ Secret', 'error'); return; }
+
+  localStorage.setItem(LS_URL,    url);
+  localStorage.setItem(LS_SECRET, secret);
+  if (adminUrl) localStorage.setItem(LS_ADMIN_URL, adminUrl);
+
+  updateSettingsBtn();
+  updateLoginSettingsBtn();
+  closeSettings();
+  showToast('تم حفظ الإعدادات ✓', 'success');
+  loadEmployeesList();
+}
+
+// ══ Changelog Modal ═══════════════════════════════════════════════════════════
+
+function openChangelog()              { document.getElementById('changelogOverlay').classList.add('open'); }
+function closeChangelog()             { document.getElementById('changelogOverlay').classList.remove('open'); }
+function closeChangelogOnBackdrop(e)  { if (e.target === e.currentTarget) closeChangelog(); }
+
+// ══ Login — D1 Auth ═══════════════════════════════════════════════════════════
+
+async function loadEmployeesList() {
+  const cfg      = getConfig();
+  const adminUrl = cfg.adminUrl;
+  const toolUrl  = cfg.url;
+  const url      = adminUrl || toolUrl;
+  if (!url) return;
+
+  try {
+    const headers = {};
+    if (!adminUrl && cfg.secret) {
+      headers['Authorization'] = `Bearer ${cfg.secret}`;
+    }
+    const res  = await fetch(`${url}?action=get_employees`, { headers });
+    const data = await res.json();
+    if (!data.ok || !data.employees?.length) return;
+
+    const select = document.getElementById('loginUsername');
+    select.innerHTML = '<option value="">— اختر —</option>';
+    data.employees.forEach(emp => {
+      const opt = document.createElement('option');
+      opt.value       = emp.username;
+      opt.textContent = emp.display_name;
+      select.appendChild(opt);
+    });
+  } catch { /* فشل صامت */ }
+}
+
+async function onUsernameChange() {
+  const username = document.getElementById('loginUsername').value;
+  clearLoginError();
+  resetPinDots(['pd0','pd1','pd2','pd3']);
+  pinBuffer = '';
+  firstPin  = '';
+
+  if (!username) {
+    document.getElementById('pinSection').style.display = 'none';
+    document.getElementById('stepConfirmPin').style.display = 'none';
+    document.getElementById('stepMain').style.display = 'block';
+    return;
+  }
+
+  const cfg = getConfig();
+  if (!cfg.url || !cfg.secret) {
+    showLoginError('أدخل إعدادات الأداة أولاً');
+    return;
+  }
+
+  try {
+    const res  = await fetch(`${cfg.url}?action=check_employee&username=${encodeURIComponent(username)}`, {
+      headers: { 'Authorization': `Bearer ${cfg.secret}` },
+    });
+    const data = await res.json();
+
+    if (!data.ok || !data.exists) { showLoginError('المستخدم غير موجود'); return; }
+    if (!data.isActive)           { showLoginError('الحساب موقوف — تواصل مع المسؤول'); return; }
+
+    pendingUsername = username;
+    currentMode     = data.hasPin ? 'verify' : 'first_time';
+
+    document.getElementById('pinPromptLabel').textContent = data.hasPin
+      ? 'أدخل الـ PIN' : 'اختر PIN جديد (4 أرقام)';
+    document.getElementById('pinSection').style.display = 'block';
+  } catch (e) {
+    showLoginError('خطأ في الاتصال: ' + e.message);
+  }
+}
+
+function pinPress(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots(pinBuffer, ['pd0','pd1','pd2','pd3']);
+  if (pinBuffer.length === 4) setTimeout(handlePinComplete, 150);
+}
+function delPin()   { pinBuffer = pinBuffer.slice(0,-1); updatePinDots(pinBuffer, ['pd0','pd1','pd2','pd3']); }
+function clearPin() { pinBuffer = ''; updatePinDots(pinBuffer, ['pd0','pd1','pd2','pd3']); }
+
+async function handlePinComplete() {
+  const cfg = getConfig();
+  clearLoginError();
+
+  if (currentMode === 'verify') {
+    try {
+      const res  = await fetch(`${cfg.url}?action=verify_employee`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${cfg.secret}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: pendingUsername, pin: pinBuffer }),
+      });
+      const data = await res.json();
+      if (data.ok && data.displayName) {
+        finishLogin(pendingUsername, data.displayName);
+      } else {
+        showLoginError('PIN خطأ — حاول مرة أخرى');
+        pinBuffer = '';
+        resetPinDots(['pd0','pd1','pd2','pd3']);
+      }
+    } catch (e) {
+      showLoginError('خطأ في الاتصال');
+      pinBuffer = '';
+      resetPinDots(['pd0','pd1','pd2','pd3']);
+    }
+  } else {
+    // first time — اذهب لخطوة التأكيد
+    firstPin        = pinBuffer;
+    pinBuffer       = '';
+    confirmPinBuffer= '';
+    resetPinDots(['pd0','pd1','pd2','pd3']);
+    resetPinDots(['cd0','cd1','cd2','cd3']);
+    document.getElementById('stepMain').style.display        = 'none';
+    document.getElementById('stepConfirmPin').style.display  = 'block';
+  }
+}
+
+function confirmPress(digit) {
+  if (confirmPinBuffer.length >= 4) return;
+  confirmPinBuffer += digit;
+  updatePinDots(confirmPinBuffer, ['cd0','cd1','cd2','cd3']);
+  if (confirmPinBuffer.length === 4) setTimeout(handleConfirmComplete, 150);
+}
+function delConfirm()   { confirmPinBuffer = confirmPinBuffer.slice(0,-1); updatePinDots(confirmPinBuffer, ['cd0','cd1','cd2','cd3']); }
+function clearConfirm() { confirmPinBuffer = ''; updatePinDots(confirmPinBuffer, ['cd0','cd1','cd2','cd3']); }
+
+async function handleConfirmComplete() {
+  if (confirmPinBuffer !== firstPin) {
+    document.getElementById('confirmError').textContent = 'الـ PIN غير متطابق — حاول مرة أخرى';
+    confirmPinBuffer = '';
+    resetPinDots(['cd0','cd1','cd2','cd3']);
+    return;
+  }
+
+  const cfg = getConfig();
+  try {
+    // ① register
+    const r1   = await fetch(`${cfg.url}?action=register_pin`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${cfg.secret}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: pendingUsername, pin: firstPin }),
+    });
+    const d1 = await r1.json();
+    if (!d1.ok) throw new Error(d1.error || 'فشل التسجيل');
+
+    // ② verify
+    const r2   = await fetch(`${cfg.url}?action=verify_employee`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${cfg.secret}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: pendingUsername, pin: firstPin }),
+    });
+    const d2 = await r2.json();
+    if (d2.ok && d2.displayName) {
+      finishLogin(pendingUsername, d2.displayName);
+    } else {
+      throw new Error('التسجيل نجح لكن الدخول فشل — حاول مرة أخرى');
+    }
+  } catch (e) {
+    document.getElementById('confirmError').textContent = 'خطأ: ' + e.message;
+    confirmPinBuffer = '';
+    resetPinDots(['cd0','cd1','cd2','cd3']);
+  }
+}
+
+function backToMainStep() {
+  confirmPinBuffer = ''; firstPin = ''; pinBuffer = '';
+  resetPinDots(['pd0','pd1','pd2','pd3']);
+  resetPinDots(['cd0','cd1','cd2','cd3']);
+  document.getElementById('stepConfirmPin').style.display = 'none';
+  document.getElementById('stepMain').style.display       = 'block';
+}
+
+function finishLogin(username, displayName) {
+  currentEmployee = { username, displayName };
+  document.getElementById('loginOverlay').classList.add('hidden');
+  const btn = document.getElementById('activeUserBtn');
+  btn.textContent     = '👤 ' + displayName;
+  btn.style.display   = 'flex';
+  showToast('مرحباً ' + displayName, 'success');
+}
+
+async function doLogout() {
+  if (!confirm('تسجيل الخروج؟')) return;
+  if (currentEmployee) {
+    const cfg = getConfig();
+    const u   = new URL(cfg.url);
+    u.searchParams.set('action', 'log_logout');
+    u.searchParams.set('username', currentEmployee.username);
+    fetch(u.toString(), {
+      headers: { 'Authorization': `Bearer ${cfg.secret}` },
+    }).catch(() => {});
+  }
+  currentEmployee = null;
+  pinBuffer = ''; firstPin = ''; confirmPinBuffer = '';
+  document.getElementById('loginUsername').value  = '';
+  document.getElementById('pinSection').style.display      = 'none';
+  document.getElementById('stepConfirmPin').style.display  = 'none';
+  document.getElementById('stepMain').style.display        = 'block';
+  resetPinDots(['pd0','pd1','pd2','pd3']);
+  resetPinDots(['cd0','cd1','cd2','cd3']);
+  document.getElementById('activeUserBtn').style.display = 'none';
+  document.getElementById('loginOverlay').classList.remove('hidden');
+}
+
+// ── PIN Helpers ───────────────────────────────────────────────────────────────
+function updatePinDots(buffer, ids) {
+  ids.forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (i < buffer.length) { el.textContent = '●'; el.classList.add('filled'); }
+    else                   { el.textContent = '·'; el.classList.remove('filled'); }
+  });
+}
+function resetPinDots(ids) {
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    el.textContent = '·'; el.classList.remove('filled');
+  });
+}
+function showLoginError(msg)  { document.getElementById('loginError').textContent = msg; }
+function clearLoginError()    { document.getElementById('loginError').textContent = ''; }
+
+// ══ Load Logs ═════════════════════════════════════════════════════════════════
+
+async function loadLogs() {
+  const cfg = getConfig();
+  if (!cfg.url || !cfg.secret) {
+    showToast('أدخل إعدادات الأداة أولاً', 'error');
+    return;
+  }
+
+  const order = document.getElementById('filterOrder').value.trim();
+  const key   = document.getElementById('filterKey').value;
+  const date  = document.getElementById('filterDate').value;
+
+  document.getElementById('filterOrder').classList.toggle('active', !!order);
+  document.getElementById('filterKey').classList.toggle('active', !!key);
+  document.getElementById('filterDate').classList.toggle('active', !!date);
+
+  document.getElementById('tableBody').innerHTML = `<div class="loading-box"><div class="spinner"></div></div>`;
+
+  const qs = new URLSearchParams();
+  if (order) qs.set('orderId', order);
+  if (key)   qs.set('metafieldKey', key);
+  if (date)  qs.set('date', date);
+
+  try {
+    const res = await fetch(`${cfg.url}/logs?${qs}`, {
+      headers: { 'Authorization': `Bearer ${cfg.secret}` },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data    = await res.json();
+    const entries = data.entries || [];
+    renderTable(entries);
+    renderStats(entries);
+    document.getElementById('lastRefresh');
+  } catch (e) {
+    document.getElementById('tableBody').innerHTML =
+      `<div class="empty-state"><div class="empty-icon">❌</div><div class="empty-text">خطأ: ${escHtml(e.message)}</div></div>`;
+    showToast('فشل الاتصال: ' + e.message, 'error');
+  }
+}
+
+// ══ Render ════════════════════════════════════════════════════════════════════
+
+function parseFlowTs(ts) {
+  if (!ts) return { date: '—', time: '—' };
+  const m = ts.match(/(\d{4}-\d{2}-\d{2})\s*-\s*(\d{2}:\d{2}:\d{2})/);
+  if (m) return { date: m[1], time: m[2] };
+  return { date: ts, time: '' };
+}
+
+function renderTable(entries) {
+  document.getElementById('tableCount').textContent = entries.length.toLocaleString('en-US') + ' entries';
+
+  if (!entries.length) {
+    document.getElementById('tableBody').innerHTML =
+      `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">لا توجد نتائج</div></div>`;
+    return;
+  }
+
+  // Group by orderName
+  const grouped = {};
+  for (const e of entries) {
+    const k = e.orderName || e.orderId;
+    if (!grouped[k]) grouped[k] = [];
+    grouped[k].push(e);
+  }
+
+  let html = `<table>
+    <thead><tr>
+      <th>Order</th>
+      <th>Metafield Key</th>
+      <th>New Value</th>
+      <th>Date</th>
+      <th>Time</th>
+      <th></th>
+    </tr></thead>
+    <tbody>`;
+
+  for (const [orderName, rows] of Object.entries(grouped)) {
+    html += `<tr class="section-divider"><td colspan="6">${escHtml(orderName)} — ${rows.length} change${rows.length > 1 ? 's' : ''}</td></tr>`;
+    for (const e of rows) {
+      const { date, time } = parseFlowTs(e.flowTimestamp);
+      html += `<tr class="data-row">
+        <td><span class="order-badge">${escHtml(e.orderName)}</span></td>
+        <td><span class="key-badge key-${escHtml(e.metafieldKey)}">${escHtml(e.metafieldKey)}</span></td>
+        <td><span class="value-cell" title="${escHtml(e.newValue)}">${escHtml(e.newValue)}</span></td>
+        <td><span class="ts-date">${escHtml(date)}</span></td>
+        <td><span class="ts-time">${escHtml(time)}</span></td>
+        <td><button class="btn btn-danger" onclick="openConfirmDelete('${escHtml(e._kvKey)}','${escHtml(e.orderName)}','${escHtml(e.metafieldKey)}')">حذف</button></td>
+      </tr>`;
+    }
+  }
+
+  html += `</tbody></table>`;
+  document.getElementById('tableBody').innerHTML = html;
+}
+
+function renderStats(entries) {
+  if (!entries.length) { document.getElementById('statsRow').style.display = 'none'; return; }
+  document.getElementById('statsRow').style.display = 'flex';
+  document.getElementById('statTotal').textContent  = entries.length.toLocaleString('en-US');
+  document.getElementById('statOrders').textContent = new Set(entries.map(e => e.orderId)).size.toLocaleString('en-US');
+}
+
+// ══ Delete ════════════════════════════════════════════════════════════════════
+
+function openConfirmDelete(kvKey, orderName, metafieldKey) {
+  document.getElementById('confirmBody').textContent = `حذف سجل ${orderName} ← ${metafieldKey}؟`;
+  pendingDeleteFn = () => deleteEntry(kvKey);
+  document.getElementById('confirmActionBtn').onclick = () => { pendingDeleteFn(); closeConfirm(); };
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm()             { document.getElementById('confirmOverlay').classList.remove('open'); pendingDeleteFn = null; }
+function closeConfirmOnBackdrop(e)  { if (e.target === e.currentTarget) closeConfirm(); }
+
+async function deleteEntry(kvKey) {
+  const cfg = getConfig();
+  try {
+    const res = await fetch(`${cfg.url}/log`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${cfg.secret}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kvKey }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    showToast('تم الحذف', 'success');
+    loadLogs();
+  } catch (e) {
+    showToast('فشل الحذف: ' + e.message, 'error');
+  }
+}
+
+// ══ Filters ═══════════════════════════════════════════════════════════════════
+
+function clearFilters() {
+  document.getElementById('filterOrder').value = '';
+  document.getElementById('filterKey').value   = '';
+  document.getElementById('filterDate').value  = '';
+  document.getElementById('filterOrder').classList.remove('active');
+  document.getElementById('filterKey').classList.remove('active');
+  document.getElementById('filterDate').classList.remove('active');
+  document.getElementById('tableBody').innerHTML =
+    `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">اختر فلتر للبحث<br>رقم الأوردر أو الـ Key أو التاريخ</div></div>`;
+  document.getElementById('tableCount').textContent = '—';
+  document.getElementById('statsRow').style.display = 'none';
+}
+
+// ══ Helpers ═══════════════════════════════════════════════════════════════════
+
+function showToast(msg, type = 'neutral') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast show' + (type === 'error' ? ' error' : type === 'success' ? ' success' : '');
+  setTimeout(() => { t.className = 'toast'; }, 3000);
+}
+
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ══ Event Listeners ═══════════════════════════════════════════════════════════
+
+document.getElementById('filterOrder').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loadLogs();
+});
+document.getElementById('filterKey').addEventListener('change', () => loadLogs());
+document.getElementById('filterDate').addEventListener('change', () => loadLogs());
+
+// ══ Init ══════════════════════════════════════════════════════════════════════
+
+window.addEventListener('load', () => {
+  updateSettingsBtn();
+  updateLoginSettingsBtn();
+  loadEmployeesList();
+});
+
+</script>
+</body>
+</html>

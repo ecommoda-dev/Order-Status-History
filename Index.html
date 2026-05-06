@@ -859,10 +859,7 @@ async function loadLogs() {
   document.getElementById('tableBody').innerHTML = `<div class="loading-box"><div class="spinner"></div></div>`;
 
   const qs = new URLSearchParams();
-  if (order) {
-    const normalized = order.startsWith('#') ? order : '#' + order;
-    qs.set('orderId', normalized);
-}
+  if (order) qs.set('orderId', order.startsWith('#') ? order : '#' + order);
   if (key)   qs.set('metafieldKey', key);
   if (date)  qs.set('date', date);
 

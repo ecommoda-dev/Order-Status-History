@@ -582,7 +582,7 @@ function saveSettings() {
   const secret   = document.getElementById('cfgSecret').value.trim();
   const adminUrl = document.getElementById('cfgAdminUrl').value.trim();
   if (!url || !secret) { showToast('الرجاء إدخال الـ URL والـ Secret', 'error'); return; }
-  localStorage.setItem(LS_URL,    url);
+  localStorage.setItem(LS_URL,    url.replace(/\/$/, ''));
   localStorage.setItem(LS_SECRET, secret);
   if (adminUrl) localStorage.setItem(LS_ADMIN_URL, adminUrl);
   updateSettingsBtn();
@@ -864,7 +864,7 @@ async function loadLogs() {
   if (date)  qs.set('date', date);
 
   try {
-    const res = await fetch(`${cfg.workerUrl}/logs?${qs}`, {
+    const res = await fetch(`${cfg.workerUrl.replace(/\/$/, '')}/logs?${qs}`, {
       headers: { 'Authorization': `Bearer ${cfg.workerSecret}` },
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

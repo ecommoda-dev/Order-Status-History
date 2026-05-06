@@ -911,7 +911,7 @@ function renderTable(entries) {
         <td><span class="value-cell" title="${escHtml(e.newValue)}">${escHtml(e.newValue)}</span></td>
         <td><span class="ts-date">${escHtml(date)}</span></td>
         <td><span class="ts-time">${escHtml(time)}</span></td>
-        <td><button class="btn btn-danger" onclick="openConfirmDelete('${escHtml(e._kvKey)}','${escHtml(e.orderName)}','${escHtml(e.metafieldKey)}')">حذف</button></td>
+        <td><button class="btn btn-danger" onclick="openConfirmDelete('${escHtml(e.id)}','${escHtml(e.orderName)}','${escHtml(e.metafieldKey)}')">حذف</button></td>
       </tr>`;
     }
   }
@@ -928,22 +928,22 @@ function renderStats(entries) {
 
 // ══ Delete ════════════════════════════════════════════════════════════════════
 
-function openConfirmDelete(kvKey, orderName, metafieldKey) {
+function openConfirmDelete(id, orderName, metafieldKey) {
   document.getElementById('confirmBody').textContent = `حذف سجل ${orderName} ← ${metafieldKey}؟`;
-  pendingDeleteFn = () => deleteEntry(kvKey);
+  pendingDeleteFn = () => deleteEntry(id);
   document.getElementById('confirmActionBtn').onclick = () => { pendingDeleteFn(); closeConfirm(); };
   document.getElementById('confirmOverlay').classList.add('open');
 }
 function closeConfirm()            { document.getElementById('confirmOverlay').classList.remove('open'); pendingDeleteFn = null; }
 function closeConfirmOnBackdrop(e) { if (e.target === e.currentTarget) closeConfirm(); }
 
-async function deleteEntry(kvKey) {
+async function deleteEntry(id) {
   const cfg = getConfig();
   try {
     const res = await fetch(`${cfg.workerUrl}/log`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${cfg.workerSecret}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ kvKey }),
+      body: JSON.stringify({ id }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     showToast('تم الحذف', 'success'); loadLogs();

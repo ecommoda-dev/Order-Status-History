@@ -1,6 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
 // metafields-change-log-worker — الحساب الجديد (ecommoda-dev)
 // v2.1.0
+// skills: worker-builder v2.0.0 · constants v1.4.4 — 05-09-2026
 // D1: DB (ecommoda-dev-logs) — Storage الرئيسي + Auth + Logging
 // Auth: Authorization: Bearer ${WORKER_SECRET}
 //

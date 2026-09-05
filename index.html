@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<!-- skills: html-builder v6.3.0 · constants v1.4.4 — 05-09-2026 -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Metafields Change Log</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+
+/* ══ CSS Variables — EcomModa Design System ═════════════════════════════════ */
+:root {
+  --bg:            #f3f4f6;
+  --surface:       #ffffff;
+  --surface-2:     #f9fafb;
+  --border:        #e5e7eb;
+  --border-strong: #d1d5db;
+  --text-primary:  #111827;
+  --text-secondary:#6b7280;
+  --text-muted:    #6b7280;
+  --accent:        #2563eb;
+  --accent-light:  #eff6ff;
+  --accent-dark:   #1d4ed8;
+  --green:         #16a34a;
+  --green-light:   #f0fdf4;
+  --green-border:  #86efac;
+  --red:           #dc2626;
+  --red-light:     #fef2f2;
+  --red-border:    #fca5a5;
+  --amber:         #d97706;
+  --amber-light:   #fffbeb;
+  --purple:        #7c3aed;
+  --purple-light:  #f5f3ff;
+  --purple-border: #c4b5fd;
+  --radius:        12px;
+  --radius-sm:     8px;
+  --shadow:        0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+  --font-sans:     'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body:     'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif; /* alias — الاسم المعتمد في design-system.md */
+  --font-mono:     'IBM Plex Mono', monospace;
+  /* عرض الأداة — نوافذ About/Changelog = 90% منه (tabs-and-modals.md §0) */
+  --container-max: 960px;
+  --tag-manual:    #7c3aed; --tag-manual-bg:  #f5f3ff;
+  --tag-status:    #0891b2; --tag-status-bg:  #ecfeff;
+  --tag-payment:   #059669; --tag-payment-bg: #ecfdf5;
+  --tag-courier:   #d97706; --tag-courier-bg: #fffbeb;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); background: var(--bg); color: var(--text-primary); min-height: 100vh; font-size: 14px; padding: 12px; }
+.container { max-width: var(--container-max); margin: 0 auto; }
+
+/* ══ Login Overlay — Universal D1 Auth, two-step reveal (UI Standard v2) ════ */
+.login-overlay {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 500;   /* login = 500 · كل الـ modals = 600 */
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.login-overlay.hidden { display: none; }
+
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 22px 70px rgba(0,0,0,.22);
+  width: 100%; max-width: 420px;
+  padding: 28px 26px 24px;
+  position: relative;
+  animation: loginIn .18s ease;
+}
+@keyframes loginIn {
+  from { transform: translateY(6px) scale(.985); opacity: 0; }
+  to   { transform: translateY(0)   scale(1);    opacity: 1; }
+}
+
+.login-settings-btn {
+  position: absolute; top: 16px; left: 16px;
+  display: inline-flex; align-items: center; gap: 5px;
+  min-height: 38px; padding: 8px 12px;
+  border-radius: 9px; border: 1.5px solid;
+  background: var(--surface);
+  font-family: var(--font-body); font-size: 12px; font-weight: 800;
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.login-settings-btn.ready   { border-color: var(--green); color: var(--green); background: var(--green-light); }
+.login-settings-btn.missing { border-color: var(--red);   color: var(--red);   background: var(--red-light);   }
+.login-settings-btn:hover   { transform: translateY(-1px); }
+
+.login-top { padding-top: 12px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.login-icon  { font-size: 34px; line-height: 1; margin-bottom: 14px; }
+.login-title { font-size: 19px; font-weight: 900; letter-spacing: -.1px; }
+.login-desc  { font-size: 13px; color: var(--text-secondary); font-weight: 600; margin-top: 5px; }
+.login-sub   { min-height: 22px; margin-top: 4px; color: var(--text-muted); font-size: 12px; font-weight: 600; text-align: center; line-height: 1.7; }
+
+.login-body  { margin-top: 22px; display: flex; flex-direction: column; gap: 14px; }
+.login-field { display: flex; flex-direction: column; gap: 7px; }
+.login-field label { display: block; font-size: 11px; font-weight: 800; color: var(--text-secondary); letter-spacing: .3px; }
+.login-field select {
+  width: 100%; height: 58px;
+  border: 1.5px solid var(--border-strong); border-radius: 10px;
+  background: var(--surface); color: var(--text-primary);
+  font-family: var(--font-body); font-size: 14px; font-weight: 600;
+  outline: none; padding: 0 14px;
+  transition: border-color .15s, box-shadow .15s;
+}
+.login-field select:focus    { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+.login-field select:disabled { opacity: .68; cursor: not-allowed; background: var(--surface-2); }
+
+.login-status { min-height: 18px; font-size: 12px; font-weight: 700; color: var(--text-muted); line-height: 1.5; }
+.login-status.info  { color: var(--accent); }
+.login-status.warn  { color: var(--amber);  }
+.login-status.error { color: var(--red);    }
+
+.pin-zone { display: none; flex-direction: column; gap: 12px; animation: pinZoneIn .16s ease; }
+.pin-zone.visible { display: flex; }
+@keyframes pinZoneIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.pin-label { font-size: 12px; font-weight: 800; color: var(--text-secondary); text-align: right; margin-top: 2px; }
+
+.pin-slots { display: flex; justify-content: center; gap: 9px; direction: ltr; }
+.pin-slot {
+  width: 48px; height: 48px;
+  border-radius: 10px; border: 1.5px solid var(--border-strong);
+  background: var(--surface-2);
+  display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: 22px; font-weight: 800;
+  color: var(--accent); transition: all .15s; user-select: none;
+}
+.pin-slot.empty::before  { content: '_';  transform: translateY(-2px); color: var(--accent); opacity: .75; font-size: 18px; }
+.pin-slot.filled         { background: var(--accent-light); border-color: var(--accent); }
+.pin-slot.filled::before { content: '●'; font-size: 17px; transform: translateY(-1px); color: var(--accent); opacity: 1; }
+.pin-slot.error          { border-color: var(--red); background: var(--red-light); }
+.pin-slot.error::before  { color: var(--red); }
+
+.pin-slots.shake { animation: pinShake .34s ease; }
+@keyframes pinShake {
+  0%,100% { transform: translateX(0);  }
+  22%     { transform: translateX(-5px); }
+  44%     { transform: translateX( 5px); }
+  66%     { transform: translateX(-3px); }
+  88%     { transform: translateX( 3px); }
+}
+
+.pin-keypad { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin: 1px 0 0; }
+.pin-key {
+  min-height: 49px; border-radius: 10px;
+  border: 1.5px solid var(--border-strong); background: var(--surface);
+  color: var(--text-primary);
+  font-family: var(--font-mono); font-size: 18px; font-weight: 800;
+  cursor: pointer; transition: background .12s, color .12s, border-color .12s, transform .06s;
+  display: flex; align-items: center; justify-content: center;
+}
+.pin-key:hover:not(:disabled)  { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+.pin-key:active:not(:disabled) { transform: translateY(1px); }
+.pin-key.utility {
+  color: var(--red); background: var(--red-light); border-color: var(--red-border);
+  font-family: var(--font-body); font-size: 13px; font-weight: 900;
+}
+.pin-key.utility:hover:not(:disabled) { background: var(--red); color: #fff; border-color: var(--red); }
+.pin-key:disabled { opacity: .55; cursor: not-allowed; }
+
+.login-alert {
+  display: none; min-height: 38px;
+  border-radius: 10px; border: 1px solid var(--red-border);
+  background: var(--red-light); color: var(--red);
+  padding: 9px 12px; font-size: 12px; font-weight: 800;
+  text-align: center; line-height: 1.6;
+}
+.login-alert.visible { display: block; }
+
+.login-primary {
+  display: none; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; min-height: 58px; margin-top: 1px;
+  border: none; border-radius: 10px;
+  background: var(--accent); color: #fff;
+  font-family: var(--font-body); font-size: 15px; font-weight: 900;
+  cursor: pointer; transition: background .15s, opacity .15s, transform .06s;
+}
+.login-primary.visible               { display: inline-flex; }
+.login-primary:hover:not(:disabled)  { background: var(--accent-dark); }
+.login-primary:active:not(:disabled) { transform: translateY(1px); }
+.login-primary:disabled { opacity: .56; cursor: not-allowed; }
+
+.login-secondary {
+  display: none; align-items: center; justify-content: center;
+  width: 100%; min-height: 42px;
+  border-radius: 10px; border: 1px solid var(--border-strong);
+  background: var(--surface); color: var(--text-secondary);
+  font-family: var(--font-body); font-size: 12px; font-weight: 800;
+  cursor: pointer; transition: all .15s;
+}
+.login-secondary.visible { display: inline-flex; }
+.login-secondary:hover   { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+
+/* ══ App Header ══════════════════════════════════════════════════════════════ */
+.app-header {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 16px;
+  margin-bottom: 12px; box-shadow: var(--shadow);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.app-title           { display: flex; align-items: center; gap: 10px; }
+.app-icon            { font-size: 22px; }
+.app-title-text h1   { font-size: 15px; font-weight: 700; line-height: 1.2; }
+.app-title-text span { font-size: 11px; color: var(--text-muted); }
+.app-header-btns     { display: flex; align-items: center; gap: 6px; }
+
+.hbtn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border: 1.5px solid var(--border-strong);
+  background: var(--surface); border-radius: var(--radius-sm);
+  font-family: var(--font-sans); font-size: 12px; font-weight: 600;
+  color: var(--text-secondary); cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.hbtn:hover    { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.hbtn:disabled { opacity: .5; cursor: not-allowed; }
+.hbtn.settings-configured { border-color: var(--green); color: var(--green); background: var(--green-light); }
+.hbtn.ver-btn  { border-color: #bfdbfe; color: #1d4ed8; background: #eff6ff; font-family: var(--font-mono); font-weight: 700; }
+.hbtn.ver-btn:hover { background: #dbeafe; border-color: #93c5fd; color: #1d4ed8; }
+.hbtn.active-user { border-color: var(--green); color: var(--green); background: var(--green-light); }
+.hbtn.active-user:hover { border-color: var(--red); color: var(--red); background: var(--red-light); }
+
+/* ══ Main ════════════════════════════════════════════════════════════════════ */
+.main { padding: 12px 0; display: flex; flex-direction: column; gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+
+.filters-bar { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.filter-group { display: flex; flex-direction: column; gap: 5px; }
+.filter-label { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .5px; }
+.filter-input {
+  border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm);
+  padding: 7px 10px; font-family: var(--font-mono); font-size: 12px;
+  color: var(--text-primary); background: var(--surface);
+  outline: none; direction: ltr; transition: border-color .15s;
+}
+.filter-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+.filter-input.active { border-color: var(--accent); background: var(--accent-light); }
+#filterOrder { width: 160px; } #filterKey { width: 160px; } #filterDate { width: 150px; }
+.filter-hint { font-size: 10px; color: var(--text-muted); }
+.filters-actions { display: flex; gap: 6px; align-items: center; margin-right: auto; }
+
+.stats-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.stat-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 18px; display: flex; flex-direction: column; gap: 2px; min-width: 120px; }
+.stat-value { font-size: 24px; font-weight: 700; font-family: var(--font-mono); color: var(--accent); direction: ltr; }
+.stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); }
+
+.table-card { overflow: hidden; }
+.table-header { display: flex; align-items: center; justify-content: space-between; padding: 0 0 12px; }
+.table-count { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); }
+.table-wrap { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th { background: var(--surface-2); border-bottom: 2px solid var(--border); padding: 10px 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-secondary); text-align: right; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr.data-row:hover { background: var(--surface-2); }
+tbody td { padding: 10px 12px; vertical-align: middle; }
+tr.section-divider td { background: var(--surface-2); border-bottom: 1px solid var(--border-strong); border-top: 2px solid var(--border-strong); padding: 6px 12px; font-size: 11px; font-weight: 700; color: var(--text-secondary); }
+
+/* رقم الأوردر — هايبر لينك لشوبيفاي (design-system.md — Order Number Display, إلزامي) */
+.order-link { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--accent); background: var(--accent-light); padding: 3px 8px; border-radius: 5px; direction: ltr; display: inline-block; text-decoration: none; }
+.order-link:hover { text-decoration: underline; background: #dbeafe; }
+.order-num  { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--accent); background: var(--accent-light); padding: 3px 8px; border-radius: 5px; direction: ltr; display: inline-block; } /* fallback بدون لينك — لو orderId مش متاح */
+
+.key-badge   { font-family: var(--font-mono); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 5px; direction: ltr; display: inline-block; white-space: nowrap; }
+.key-manual_status { background: var(--tag-manual-bg);  color: var(--tag-manual); }
+.key-status_2_r_e  { background: var(--tag-status-bg);  color: var(--tag-status); }
+.key-payment       { background: var(--tag-payment-bg); color: var(--tag-payment); }
+.key-courier       { background: var(--tag-courier-bg); color: var(--tag-courier); }
+.value-cell { font-family: var(--font-mono); font-size: 12px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.ts-date { font-family: var(--font-mono); font-size: 12px; color: var(--text-primary); direction: ltr; }
+.ts-time { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);   direction: ltr; }
+
+.empty-state { padding: 48px 24px; text-align: center; color: var(--text-muted); }
+.empty-icon  { font-size: 32px; margin-bottom: 8px; }
+.empty-text  { font-size: 13px; line-height: 1.6; }
+.loading-box { padding: 48px 24px; text-align: center; color: var(--text-muted); }
+.spinner { display: inline-block; width: 22px; height: 22px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; margin-bottom: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.btn { padding: 7px 14px; border-radius: var(--radius-sm); font-family: var(--font-sans); font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; border: 1.5px solid transparent; }
+.btn-primary   { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+.btn-secondary { background: var(--surface); color: var(--text-secondary); border-color: var(--border-strong); }
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+.btn-danger { background: var(--red-light); color: var(--red); border-color: var(--red-border); font-size: 11px; padding: 4px 10px; }
+.btn-danger:hover { background: var(--red); color: #fff; }
+
+/* ══ زرار الإغلاق ✕ الموحّد — إطار أحمر + خلفية حمراء (tabs-and-modals.md §3) ══ */
+.modal-close-x {
+  background: var(--red-light);
+  border: 1.5px solid var(--red-border);
+  color: var(--red);
+  font-size: 14px; font-weight: 700; line-height: 1;
+  padding: 4px 11px; border-radius: var(--radius-sm);
+  font-family: inherit; cursor: pointer; transition: all .15s;
+}
+.modal-close-x:hover { background: var(--red); color: #fff; border-color: var(--red); }
+
+/* ══ Settings Modal ══════════════════════════════════════════════════════════ */
+.settings-overlay      { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 600; display: none; align-items: center; justify-content: center; padding: 20px; }
+.settings-overlay.open { display: flex; }
+.settings-modal         { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,.18); animation: modalIn .2s ease; overflow: hidden; }
+@keyframes modalIn { from{transform:scale(.95);opacity:0} to{transform:scale(1);opacity:1} }
+.settings-modal-hdr    { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 15px; font-weight: 700; }
+.settings-modal-body   { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.settings-field  { display: flex; flex-direction: column; gap: 5px; }
+.settings-label  { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .5px; }
+.settings-input  { border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); padding: 9px 11px; font-family: var(--font-mono); font-size: 12px; color: var(--text-primary); outline: none; width: 100%; direction: ltr; background: var(--surface); transition: border-color .15s; }
+.settings-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+.settings-modal-ftr { padding: 12px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+.btn-modal-cancel { padding: 8px 14px; background: transparent; color: var(--text-secondary); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-family: inherit; font-size: 12px; cursor: pointer; }
+.btn-modal-cancel:hover { color: var(--text-primary); }
+.btn-modal-save { padding: 8px 18px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: background .15s; }
+.btn-modal-save:hover { background: var(--accent-dark); }
+
+/* ══ Confirm Dialog ══════════════════════════════════════════════════════════ */
+.confirm-overlay       { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 600; display: none; align-items: center; justify-content: center; padding: 20px; }
+.confirm-overlay.open  { display: flex; }
+.confirm-modal         { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 360px; box-shadow: 0 20px 60px rgba(0,0,0,.18); overflow: hidden; animation: modalIn .2s ease; }
+.confirm-modal-hdr     { padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 15px; font-weight: 700; color: var(--amber); display: flex; justify-content: space-between; align-items: center; }
+.confirm-modal-body    { padding: 16px 18px; font-size: 14px; line-height: 1.6; color: var(--text-primary); }
+.confirm-modal-ftr     { padding: 12px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+.btn-confirm-ok        { padding: 8px 18px; background: var(--red); color: #fff; border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: background .15s; }
+.btn-confirm-ok:hover  { background: #b91c1c; }
+
+/* ══ Modal Shell — About / Changelog (tabs-and-modals.md §2) ═══════════════════ */
+.eco-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 600; display: none; align-items: center; justify-content: center; padding: 20px; }
+.eco-overlay.open { display: flex; }
+.eco-modal {
+  background: var(--surface); border-radius: var(--radius);
+  width: 90%; max-width: calc(var(--container-max) * .9); max-height: 85vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,.18); overflow: hidden;
+}
+.eco-modal-hdr { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 700; background: var(--surface); flex-shrink: 0; }
+.eco-modal-body { overflow-y: auto; padding: 16px 20px; flex: 1; }
+.eco-modal-ftr  { padding: 12px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; flex-shrink: 0; }
+
+/* ── Changelog content ── */
+.cl-version-block { margin-bottom: 4px; }
+.cl-version-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.cl-ver-badge { font-family: var(--font-mono); font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 5px; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; direction: ltr; }
+.cl-ver-badge.old { background: var(--surface-2); color: var(--text-secondary); border-color: var(--border-strong); }
+.cl-ver-date { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); direction: ltr; }
+.cl-items { list-style: none; display: flex; flex-direction: column; gap: 5px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border); }
+.cl-version-block:last-child .cl-items { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+.cl-item  { display: flex; gap: 8px; font-size: 13px; align-items: flex-start; }
+.cl-tag   { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; align-self: flex-start; margin-top: 2px; }
+.cl-tag.new    { background: #f0fdf4; color: #15803d; }
+.cl-tag.fix    { background: #fef2f2; color: #dc2626; }
+.cl-tag.change { background: #fffbeb; color: #92400e; }
+
+/* ── About content ── */
+.about-sec { border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 10px; overflow: hidden; }
+.about-sec > summary { padding: 11px 14px; font-weight: 700; font-size: 14px; background: var(--surface-2); cursor: pointer; user-select: none; }
+.about-sec-body { padding: 14px; display: flex; flex-direction: column; gap: 10px; font-size: 13px; line-height: 1.75; }
+.about-sec-body h4 { font-size: 12px; font-weight: 700; color: var(--accent); margin-top: 4px; }
+.about-sec-body ol, .about-sec-body ul { padding-inline-start: 20px; display: flex; flex-direction: column; gap: 4px; }
+.about-sec-body code { font-family: var(--font-mono); font-size: 11px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; direction: ltr; display: inline-block; }
+.about-sec-body table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.about-sec-body th, .about-sec-body td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: right; }
+
+/* ══ Toast ═══════════════════════════════════════════════════════════════════ */
+.toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast { padding: 10px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.2); animation: toastIn .3s ease; max-width: 320px; }
+@keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: none; opacity: 1; } }
+.toast-success { background: var(--green); }
+.toast-error   { background: var(--red); }
+.toast-neutral { background: #1a1d27; }
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     §LOGIN — Universal D1 Auth, two-step reveal (UI Standard v2)
+     ══════════════════════════════════════════════════════════════ -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+
+    <button class="login-settings-btn missing" id="loginSettingsBtn" onclick="openSettings()">⚙️ الإعدادات</button>
+
+    <div class="login-top">
+      <div class="login-icon">📋</div>
+      <div class="login-title">Metafields Change Log</div>
+      <div class="login-desc">سجل تغييرات الـ Metafields</div>
+      <div class="login-sub" id="loginSub">اختر اسمك للمتابعة</div>
+    </div>
+
+    <div class="login-body">
+
+      <div class="login-field">
+        <label for="loginSelect">الموظف</label>
+        <select id="loginSelect" onchange="handleEmployeeChange()" disabled>
+          <option value="">— اختر —</option>
+        </select>
+        <div class="login-status warn" id="loginStatus">الإعدادات غير مكتملة — افتح الإعدادات أولاً.</div>
+      </div>
+
+      <!-- بره .pin-zone عمداً — عشان تبان في الخطوة الأولى لو فشل تحميل قائمة الموظفين -->
+      <div class="login-alert" id="loginAlert"></div>
+
+      <div class="pin-zone" id="pinZone">
+        <div class="pin-label" id="pinLabel">أدخل الـ PIN</div>
+
+        <div class="pin-slots" id="pinSlots">
+          <div class="pin-slot empty" id="pinSlot0"></div>
+          <div class="pin-slot empty" id="pinSlot1"></div>
+          <div class="pin-slot empty" id="pinSlot2"></div>
+          <div class="pin-slot empty" id="pinSlot3"></div>
+        </div>
+
+        <div class="pin-keypad" id="pinKeypad">
+          <button class="pin-key" onclick="pressPinKey('1')">1</button>
+          <button class="pin-key" onclick="pressPinKey('2')">2</button>
+          <button class="pin-key" onclick="pressPinKey('3')">3</button>
+          <button class="pin-key" onclick="pressPinKey('4')">4</button>
+          <button class="pin-key" onclick="pressPinKey('5')">5</button>
+          <button class="pin-key" onclick="pressPinKey('6')">6</button>
+          <button class="pin-key" onclick="pressPinKey('7')">7</button>
+          <button class="pin-key" onclick="pressPinKey('8')">8</button>
+          <button class="pin-key" onclick="pressPinKey('9')">9</button>
+          <button class="pin-key utility" onclick="pressPinKey('clear')">مسح</button>
+          <button class="pin-key" onclick="pressPinKey('0')">0</button>
+          <button class="pin-key utility" onclick="pressPinKey('back')">←</button>
+        </div>
+
+        <button class="login-primary visible" id="loginPrimaryBtn" onclick="handlePrimaryLoginAction()" disabled>دخول</button>
+        <button class="login-secondary" id="loginSecondaryBtn" onclick="restartNewPinFlow()">الرجوع لإدخال PIN جديد</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ══ App Header ══════════════════════════════════════════════════════════ -->
+  <div class="app-header">
+    <div class="app-title">
+      <div class="app-icon">📋</div>
+      <div class="app-title-text">
+        <h1>Metafields Change Log</h1>
+        <span>سجل تغييرات الـ Metafields</span>
+      </div>
+    </div>
+    <div class="app-header-btns">
+      <button class="hbtn active-user" id="activeUserBtn" onclick="doLogout()">👤 —</button>
+      <button class="hbtn" id="aboutBtn" onclick="openAbout()">ℹ️ عن الأداة</button>
+      <button class="hbtn ver-btn" onclick="openChangelog()">v2.1.0 📋</button>
+      <button class="hbtn" id="settingsBtn" onclick="openSettings()">⚙️ الإعدادات</button>
+    </div>
+  </div>
+
+  <!-- ══ Main ════════════════════════════════════════════════════════════════ -->
+  <div class="main">
+
+    <div class="card">
+      <div class="filters-bar">
+        <div class="filter-group">
+          <span class="filter-label">Order Name / ID</span>
+          <input class="filter-input" id="filterOrder" type="text" />
+          <span class="filter-hint">اضغط Enter للبحث</span>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Metafield Key</span>
+          <select class="filter-input" id="filterKey">
+            <option value="">All keys</option>
+            <option value="manual_status">manual_status</option>
+            <option value="status_2_r_e">status_2_r_e</option>
+            <option value="payment">payment</option>
+            <option value="courier">courier</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">Date</span>
+          <input class="filter-input" id="filterDate" type="date" onclick="this.showPicker&&this.showPicker();" />
+        </div>
+        <div class="filters-actions">
+          <button class="btn btn-secondary" onclick="clearFilters()">مسح</button>
+          <button class="btn btn-secondary" onclick="loadLogs()">↻ تحديث</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row" id="statsRow" style="display:none;">
+      <div class="stat-card">
+        <span class="stat-value" id="statTotal">0</span>
+        <span class="stat-label">Total Entries</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="statOrders">0</span>
+        <span class="stat-label">Unique Orders</span>
+      </div>
+    </div>
+
+    <div class="card table-card">
+      <div class="table-header">
+        <span class="table-count" id="tableCount">—</span>
+      </div>
+      <div class="table-wrap" id="tableBody">
+        <div class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <div class="empty-text">اختر فلتر للبحث<br>رقم الأوردر أو الـ Key أو التاريخ</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ══ Settings Modal ══════════════════════════════════════════════════════ -->
+<div class="settings-overlay" id="settingsOverlay" onclick="closeSettingsOnBackdrop(event)">
+  <div class="settings-modal">
+    <div class="settings-modal-hdr">
+      ⚙️ الإعدادات
+      <button class="modal-close-x" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="settings-modal-body">
+      <div class="settings-field">
+        <label class="settings-label">WORKER URL</label>
+        <input type="text" class="settings-input" id="cfgUrl" />
+      </div>
+      <div class="settings-field">
+        <label class="settings-label">WORKER SECRET</label>
+        <input type="password" class="settings-input" id="cfgSecret" />
+      </div>
+      <div class="settings-field">
+        <label class="settings-label">ADMIN WORKER URL</label>
+        <input type="text" class="settings-input" id="cfgAdminUrl" />
+      </div>
+    </div>
+    <div class="settings-modal-ftr">
+      <button class="btn-modal-cancel" onclick="closeSettings()">إلغاء</button>
+      <button class="btn-modal-save" onclick="saveSettings()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Confirm Delete Modal ════════════════════════════════════════════════ -->
+<div class="confirm-overlay" id="confirmOverlay" onclick="closeConfirmOnBackdrop(event)">
+  <div class="confirm-modal">
+    <div class="confirm-modal-hdr">⚠️ تأكيد الحذف <button class="modal-close-x" onclick="closeConfirm()">✕</button></div>
+    <div class="confirm-modal-body"><p id="confirmMsg">—</p></div>
+    <div class="confirm-modal-ftr">
+      <button class="btn-modal-cancel" onclick="closeConfirm()">إلغاء</button>
+      <button class="btn-confirm-ok" id="confirmOkBtn">حذف</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ Changelog Modal — .eco-modal shell (tabs-and-modals.md §5) ═══════════ -->
+<div class="eco-overlay" id="changelogOverlay" onclick="if(event.target===this)closeChangelog()">
+  <div class="eco-modal">
+    <div class="eco-modal-hdr">
+      <span>📋 سجل التحديثات</span>
+      <button class="modal-close-x" onclick="closeChangelog()">✕</button>
+    </div>
+    <div class="eco-modal-body">
+
+      <div class="cl-version-block">
+        <div class="cl-version-row">
+          <span class="cl-ver-badge">v2.1.0</span>
+          <span class="cl-ver-date">13-08-2026</span>
+        </div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span>شاشة الدخول وقائمة الموظفين أصبحتا تستخدمان Worker الأداة نفسه فقط (WORKER SECRET الصحيح) — كانتا بتنادوا على Admin Worker بسيكرت مختلف فيرجع 401 بعد تحديثه لـ v2.0.0</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>نافذة "ℹ️ عن الأداة"</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>شاشة دخول بخطوتين (PIN مخفي لحد اختيار الاسم) + دعم لوحة المفاتيح + تسجيل دخول تلقائي بعد الرقم الرابع</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>توحيد شكل النوافذ (الإعدادات / السجل / عن الأداة / التأكيد) وزرار الإغلاق ✕ وترتيب الـ z-index حسب المعيار الموحّد</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>أرقام الأوردرات في الجدول أصبحت روابط مباشرة لصفحة الأوردر على شوبيفاي أدمن</span></li>
+        </ul>
+      </div>
+
+      <div class="cl-version-block">
+        <div class="cl-version-row">
+          <span class="cl-ver-badge old">v2.0.0</span>
+          <span class="cl-ver-date">05-05-2026</span>
+        </div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>شاشة Login — D1 Auth</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>App Shell Standards — هيدر موحّد + Changelog + زرار الموظف</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>Authorization: Bearer بدل x-worker-secret</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>توقيت القاهرة UTC+3 (كان UTC+2)</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>Worker: إضافة D1 Auth endpoints + get_employees</span></li>
+        </ul>
+      </div>
+
+      <div class="cl-version-block">
+        <div class="cl-version-row">
+          <span class="cl-ver-badge old">v1.0.0</span>
+          <span class="cl-ver-date">01-01-2026</span>
+        </div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>إصدار أولي — سجل تغييرات الـ Metafields عبر KV</span></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══ About Modal — .eco-modal shell (tabs-and-modals.md §4) — إلزامي ══════ -->
+<div class="eco-overlay" id="aboutOverlay" onclick="if(event.target===this)closeAbout()">
+  <div class="eco-modal">
+    <div class="eco-modal-hdr">
+      <span>ℹ️ About — Metafields Change Log</span>
+      <button class="modal-close-x" onclick="closeAbout()">✕</button>
+    </div>
+    <div class="eco-modal-body">
+
+      <details class="about-sec" open>
+        <summary>📋 وصف الأداة</summary>
+        <div class="about-sec-body">
+          <p><strong>الهدف:</strong> عرض سجل التغييرات اللي بتحصل على Metafields معينة في أوردرات شوبيفاي (<code>manual_status</code>, <code>status_2_r_e</code>, <code>payment</code>, <code>courier</code>) — التغييرات دي بتوصل تلقائيًا من Shopify Flow، والأداة بتعرضها للمراجعة والتدقيق.</p>
+          <p><strong>المستخدمون المستهدفون:</strong> فريق العمليات/المخزن اللي محتاج يعرف امتى وليه اتغيرت حالة أوردر معين.</p>
+
+          <h4>كيف تعمل — Workflow</h4>
+          <ol>
+            <li>Shopify Flow بينادي على <code>POST /log</code> في الـ Worker كل ما Metafield من الأربعة دول يتغيّر.</li>
+            <li>الـ Worker بيسجّل التغيير في D1 (<code>tool = 'metafields_change'</code>).</li>
+            <li>الموظف بيسجّل دخول (D1 Auth)، وبيدور بفلتر رقم أوردر أو Key أو تاريخ.</li>
+            <li>ممكن حذف سجل غلط عن طريق زرار "حذف" في الجدول.</li>
+          </ol>
+
+          <h4>الـ Endpoints الرئيسية</h4>
+          <table>
+            <tr><th>action / path</th><th>الوصف</th></tr>
+            <tr><td><code>get_employees</code></td><td>قائمة الموظفين لشاشة الدخول</td></tr>
+            <tr><td><code>check_employee</code></td><td>التحقق من وجود الموظف وحالة الـ PIN</td></tr>
+            <tr><td><code>verify_employee</code></td><td>تسجيل الدخول بالـ PIN</td></tr>
+            <tr><td><code>register_pin</code></td><td>تسجيل PIN لأول مرة</td></tr>
+            <tr><td><code>log_logout</code></td><td>تسجيل الخروج</td></tr>
+            <tr><td><code>GET /logs</code></td><td>جلب سجل التغييرات (فلتر orderId أو metafieldKey أو date — واحد على الأقل)</td></tr>
+            <tr><td><code>DELETE /log</code></td><td>حذف سجل واحد بالـ id</td></tr>
+          </table>
+        </div>
+      </details>
+
+      <details class="about-sec">
+        <summary>🔧 تشريح الكود</summary>
+        <div class="about-sec-body">
+          <h4>FEATURE MAP</h4>
+          <ul>
+            <li><code>§AUTH-JS</code> — Universal D1 Auth، بينادي على WORKER URL بس (تم إصلاحه — كان بينادي على ADMIN WORKER URL بالغلط ويسبب 401)</li>
+            <li><code>§TOOL-JS</code> — فلترة وعرض سجل التغييرات، حذف سجل</li>
+            <li><code>§ORDER-LINK</code> — بناء رابط الأوردر لصفحة شوبيفاي أدمن</li>
+          </ul>
+
+          <h4>KEY VARIABLES</h4>
+          <ul>
+            <li><code>currentEmployee</code> — في الذاكرة فقط، أبدًا مش localStorage</li>
+            <li><code>LS_URL = 'mflog_worker_url'</code> · <code>LS_SECRET = 'mflog_worker_secret'</code> — خاصان بهذه الأداة</li>
+            <li><code>LS_ADMIN_URL = 'admin_worker_url'</code> — مشترك بين كل الأدوات، محفوظ في الإعدادات لكن غير مستخدم حاليًا في هذه الأداة</li>
+            <li><code>SHOP_DOMAIN</code> — نطاق المتجر لبناء روابط الأوردرات</li>
+          </ul>
+
+          <h4>NOTES</h4>
+          <ul>
+            <li>الحذف عبر <code>DELETE /log</code> نهائي — لا يوجد تراجع (Undo).</li>
+            <li><code>get_employees</code> و<code>verify_employee</code> بيتم استدعاؤهم على <code>order-status-history-worker</code> نفسه (نفس الـ D1 المشترك) — مش على Admin Worker، لأن كل Worker له <code>WORKER_SECRET</code> مستقل.</li>
+          </ul>
+        </div>
+      </details>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════════════════════
+// §CONFIG
+// ══════════════════════════════════════════════════════
+const LS_URL       = 'mflog_worker_url';
+const LS_SECRET    = 'mflog_worker_secret';
+const LS_ADMIN_URL = 'admin_worker_url';
+
+const SHOP_DOMAIN = '6c7e1a-53.myshopify.com';
+
+function getConfig() {
+  return {
+    workerUrl:    localStorage.getItem(LS_URL)       || '',
+    workerSecret: localStorage.getItem(LS_SECRET)    || '',
+    adminUrl:     localStorage.getItem(LS_ADMIN_URL) || '',
+  };
+}
+function isConfigured() {
+  const c = getConfig();
+  return c.workerUrl.startsWith('http') && c.workerSecret.length > 0;
+}
+
+// ══════════════════════════════════════════════════════
+// §ORDER-LINK — Order Number Display (design-system.md — إلزامي)
+// ══════════════════════════════════════════════════════
+function shopifyOrderUrl(orderId) {
+  const id = String(orderId).includes('gid://') ? orderId.split('/').pop() : orderId;
+  return `https://${SHOP_DOMAIN}/admin/orders/${id}`;
+}
+function orderLink(orderNumber, orderId) {
+  const label = String(orderNumber).startsWith('#') ? orderNumber : `#${orderNumber}`;
+  if (!orderId) return `<span class="order-num">${escHtml(label)}</span>`;
+  return `<a href="${shopifyOrderUrl(orderId)}" target="_blank" rel="noopener" class="order-link">${escHtml(label)}</a>`;
+}
+
+// ══════════════════════════════════════════════════════
+// §API — apiGet/apiPost = ?action= endpoints على WORKER فقط (لا يوجد adminUrl هنا)
+// ══════════════════════════════════════════════════════
+async function apiPost(action, body = {}) {
+  if (!isConfigured()) { openSettings(); throw new Error('الإعدادات غير مكتملة'); }
+  const { workerUrl, workerSecret } = getConfig();
+  const resp = await fetch(`${workerUrl.replace(/\/$/, '')}?action=${action}`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${workerSecret}` },
+    body:    JSON.stringify(body),
+  });
+  const data = await resp.json();
+  if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+  return data;
+}
+async function apiGet(action, params = {}) {
+  if (!isConfigured()) { openSettings(); throw new Error('الإعدادات غير مكتملة'); }
+  const { workerUrl, workerSecret } = getConfig();
+  const qs = new URLSearchParams({ action, ...params });
+  const resp = await fetch(`${workerUrl.replace(/\/$/, '')}?${qs}`, {
+    headers: { 'Authorization': `Bearer ${workerSecret}` },
+  });
+  const data = await resp.json();
+  if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+  return data;
+}
+
+// ══════════════════════════════════════════════════════
+// §SETTINGS-JS
+// ══════════════════════════════════════════════════════
+function openSettings() {
+  const c = getConfig();
+  document.getElementById('cfgUrl').value      = c.workerUrl    || '';
+  document.getElementById('cfgSecret').value   = c.workerSecret || '';
+  document.getElementById('cfgAdminUrl').value = c.adminUrl     || '';
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+function closeSettings()            { document.getElementById('settingsOverlay').classList.remove('open'); }
+function closeSettingsOnBackdrop(e) { if (e.target === e.currentTarget) closeSettings(); }
+
+function saveSettings() {
+  const url      = document.getElementById('cfgUrl').value.trim();
+  const secret   = document.getElementById('cfgSecret').value.trim();
+  const adminUrl = document.getElementById('cfgAdminUrl').value.trim();
+  if (!url || !secret) { showToast('الرجاء إدخال الـ URL والـ Secret', 'error'); return; }
+
+  localStorage.setItem(LS_URL,       url.replace(/\/$/, ''));
+  localStorage.setItem(LS_SECRET,    secret);
+  localStorage.setItem(LS_ADMIN_URL, adminUrl.replace(/\/$/, ''));
+
+  updateSettingsBtn();
+  updateLoginSettingsBtnState();
+  closeSettings();
+  showToast('تم حفظ الإعدادات ✓', 'success');
+  loadEmployeesList();
+}
+
+function updateSettingsBtn() {
+  document.getElementById('settingsBtn').classList.toggle('settings-configured', isConfigured());
+}
+
+// ══════════════════════════════════════════════════════
+// §MODALS-JS — Changelog / About
+// ══════════════════════════════════════════════════════
+function openChangelog()  { document.getElementById('changelogOverlay').classList.add('open'); }
+function closeChangelog() { document.getElementById('changelogOverlay').classList.remove('open'); }
+function openAbout()      { document.getElementById('aboutOverlay').classList.add('open'); }
+function closeAbout()     { document.getElementById('aboutOverlay').classList.remove('open'); }
+
+// ══════════════════════════════════════════════════════
+// §TOAST
+// ══════════════════════════════════════════════════════
+function showToast(msg, type = 'neutral', duration = 3000) {
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(() => t.remove(), duration);
+}
+
+// ══════════════════════════════════════════════════════
+// §AUTH-JS — Universal D1 Auth (login-screen template, UI Standard v2)
+// ══════════════════════════════════════════════════════
+let currentEmployee = null;   // { username, displayName } — memory فقط
+let loginMode       = 'employee'; // employee | existing | new | confirm
+let pinDigits        = [];
+let pendingNewPin     = '';
+let isLoginBusy      = false;
+let autoLoginTimer   = null;
+
+// Audio — نغمتين success/error
+let _audioCtx = null;
+function playBeep(type) {
+  try {
+    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = _audioCtx.createOscillator(), gain = _audioCtx.createGain();
+    osc.connect(gain); gain.connect(_audioCtx.destination);
+    if (type === 'success') {
+      osc.frequency.setValueAtTime(880,  _audioCtx.currentTime);
+      osc.frequency.setValueAtTime(1100, _audioCtx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.3, _audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, _audioCtx.currentTime + 0.25);
+      osc.start(_audioCtx.currentTime); osc.stop(_audioCtx.currentTime + 0.25);
+    } else {
+      osc.frequency.setValueAtTime(300, _audioCtx.currentTime);
+      osc.frequency.setValueAtTime(200, _audioCtx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.4, _audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, _audioCtx.currentTime + 0.35);
+      osc.start(_audioCtx.currentTime); osc.stop(_audioCtx.currentTime + 0.35);
+    }
+  } catch {}
+}
+
+async function loadEmployeesList() {
+  const sel    = document.getElementById('loginSelect');
+  const status = document.getElementById('loginStatus');
+  clearLoginAlert();
+  sel.innerHTML = '<option value="">— اختر —</option>';
+  sel.disabled  = true;
+
+  if (!isConfigured()) {
+    status.className   = 'login-status warn';
+    status.textContent = 'الإعدادات غير مكتملة — افتح الإعدادات أولاً.';
+    renderLoginMode('employee');
+    return;
+  }
+
+  status.className   = 'login-status info';
+  status.textContent = 'جارٍ تحميل قائمة الموظفين...';
+
+  try {
+    const data      = await apiGet('get_employees');
+    const employees = data.employees || [];
+
+    employees.forEach(e => {
+      const o = document.createElement('option');
+      o.value = e.username; o.textContent = e.display_name;
+      sel.appendChild(o);
+    });
+
+    sel.disabled       = false;
+    status.className   = employees.length ? 'login-status info' : 'login-status warn';
+    status.textContent = employees.length ? 'اختر الموظف للمتابعة.' : 'لا يوجد موظفون نشطون.';
+  } catch (err) {
+    status.className   = 'login-status error';
+    status.textContent = 'تعذّر تحميل قائمة الموظفين.';
+    showLoginAlert(err.message || 'تعذّر تحميل قائمة الموظفين.');
+  }
+}
+
+async function handleEmployeeChange() {
+  if (isLoginBusy) return;
+  clearTimeout(autoLoginTimer);
+  clearLoginAlert();
+  resetPinState();
+
+  const sel      = document.getElementById('loginSelect');
+  const username = sel.value || '';
+
+  if (!username) { renderLoginMode('employee'); return; }
+
+  renderLoginMode('employee');
+  document.getElementById('loginSub').textContent = 'جارٍ التحقق من الحساب...';
+
+  try {
+    const data = await apiGet('check_employee', { username });
+
+    if (!data.exists) {
+      showLoginAlert('المستخدم غير موجود');
+      sel.value = ''; renderLoginMode('employee'); playBeep('error'); return;
+    }
+    if (!data.isActive) {
+      showLoginAlert('الحساب موقوف — تواصل مع المسؤول');
+      sel.value = ''; renderLoginMode('employee'); playBeep('error'); return;
+    }
+
+    renderLoginMode(data.hasPin ? 'existing' : 'new');
+  } catch (err) {
+    showLoginAlert(err.message || 'تعذّر التحقق من الحساب');
+    sel.value = ''; renderLoginMode('employee'); playBeep('error');
+  }
+}
+
+function renderLoginMode(mode) {
+  loginMode = mode;
+  const pinZone   = document.getElementById('pinZone');
+  const pinLabel  = document.getElementById('pinLabel');
+  const primary   = document.getElementById('loginPrimaryBtn');
+  const secondary = document.getElementById('loginSecondaryBtn');
+
+  pinZone.classList.toggle('visible', mode !== 'employee');
+  primary.classList.toggle('visible', mode !== 'employee');
+  secondary.classList.toggle('visible', mode === 'confirm');
+  resetPinState(false);
+  clearLoginAlert();
+
+  const sub = document.getElementById('loginSub');
+  if (mode === 'employee') {
+    sub.textContent = 'اختر اسمك للمتابعة'; pinLabel.textContent = 'أدخل الـ PIN';
+    primary.textContent = 'دخول'; primary.disabled = true; return;
+  }
+  if (mode === 'existing') {
+    sub.textContent = 'أدخل الـ PIN'; pinLabel.textContent = 'أدخل الـ PIN';
+    primary.textContent = 'دخول'; primary.disabled = true; return;
+  }
+  if (mode === 'new') {
+    sub.textContent = 'أول مرة؟ أنشئ PIN من 4 أرقام'; pinLabel.textContent = 'أنشئ PIN جديد';
+    primary.textContent = 'متابعة'; primary.disabled = true; return;
+  }
+  if (mode === 'confirm') {
+    sub.textContent = 'أعد إدخال الـ PIN للتأكيد'; pinLabel.textContent = 'تأكيد الـ PIN';
+    primary.textContent = 'تأكيد وتسجيل الدخول'; primary.disabled = true;
+  }
+}
+
+function restartNewPinFlow() { pendingNewPin = ''; renderLoginMode('new'); }
+
+function pressPinKey(key) {
+  if (isLoginBusy || loginMode === 'employee') return;
+  clearTimeout(autoLoginTimer);
+
+  if      (key === 'clear')                            pinDigits = [];
+  else if (key === 'back')                              pinDigits.pop();
+  else if (/^\d$/.test(key) && pinDigits.length < 4)   pinDigits.push(key);
+
+  clearLoginAlert();
+  renderPinSlots();
+  updatePrimaryLoginState();
+
+  if (pinDigits.length === 4) {
+    autoLoginTimer = setTimeout(() => handlePrimaryLoginAction(), 140);
+  }
+}
+
+function renderPinSlots() {
+  for (let i = 0; i < 4; i++) {
+    const slot = document.getElementById(`pinSlot${i}`);
+    slot.classList.remove('empty', 'filled', 'error');
+    slot.classList.add(i < pinDigits.length ? 'filled' : 'empty');
+  }
+}
+
+function resetPinState(clearPending = true) {
+  pinDigits = [];
+  if (clearPending && loginMode !== 'confirm') pendingNewPin = '';
+  renderPinSlots();
+  updatePrimaryLoginState();
+}
+
+function updatePrimaryLoginState() {
+  document.getElementById('loginPrimaryBtn').disabled =
+    loginMode === 'employee' || pinDigits.length !== 4 || isLoginBusy;
+}
+
+async function handlePrimaryLoginAction() {
+  if (isLoginBusy || loginMode === 'employee' || pinDigits.length !== 4) return;
+  if (loginMode === 'existing') { await verifyExistingPin(); return; }
+  if (loginMode === 'new')      { pendingNewPin = pinDigits.join(''); renderLoginMode('confirm'); return; }
+  if (loginMode === 'confirm')  { await registerNewPinAndLogin(); }
+}
+
+async function verifyExistingPin() {
+  const username = document.getElementById('loginSelect').value;
+  const pin      = pinDigits.join('');
+  setLoginBusy(true, '⏳ جاري التحقق...');
+  try {
+    const data = await apiPost('verify_employee', { username, pin });
+    if (!data.ok) { await presentLoginPinError('PIN خطأ — حاول مرة أخرى'); return; }
+    await finishLogin(username, data.displayName);
+  } catch (err) {
+    await presentLoginPinError(err.message || 'PIN خطأ');
+  } finally {
+    setLoginBusy(false);
+  }
+}
+
+async function registerNewPinAndLogin() {
+  const username   = document.getElementById('loginSelect').value;
+  const confirmPin = pinDigits.join('');
+  if (confirmPin !== pendingNewPin) {
+    await presentLoginPinError('الـ PIN غير متطابق — حاول مرة أخرى');
+    pendingNewPin = ''; renderLoginMode('new'); return;
+  }
+  setLoginBusy(true, '⏳ جاري التسجيل...');
+  try {
+    const reg = await apiPost('register_pin', { username, pin: pendingNewPin });
+    if (reg && reg.ok === false) { await presentLoginPinError(reg.error || 'تعذّر تسجيل الـ PIN'); return; }
+    const data = await apiPost('verify_employee', { username, pin: pendingNewPin });
+    if (!data.ok) { await presentLoginPinError(data.error || 'تعذّر تسجيل الدخول'); return; }
+    await finishLogin(username, data.displayName);
+  } catch (err) {
+    await presentLoginPinError(err.message || 'تعذّر تسجيل الـ PIN');
+  } finally {
+    setLoginBusy(false);
+  }
+}
+
+function setLoginBusy(active, text = '') {
+  isLoginBusy = active;
+  const primary = document.getElementById('loginPrimaryBtn');
+  document.querySelectorAll('#pinKeypad .pin-key').forEach(b => b.disabled = active);
+  document.getElementById('loginSelect').disabled = active || !isConfigured();
+  if (active) {
+    primary.dataset.prevText = primary.textContent;
+    primary.textContent      = text || primary.textContent;
+    primary.disabled         = true;
+  } else {
+    primary.textContent = primary.dataset.prevText || primary.textContent;
+    delete primary.dataset.prevText;
+    updatePrimaryLoginState();
+  }
+}
+
+async function presentLoginPinError(message) {
+  playBeep('error');
+  showLoginAlert(message);
+  const slots = document.getElementById('pinSlots');
+  slots.classList.add('shake');
+  for (let i = 0; i < 4; i++) document.getElementById(`pinSlot${i}`).classList.add('error');
+  await new Promise(r => setTimeout(r, 760));
+  slots.classList.remove('shake');
+  pinDigits = []; renderPinSlots(); updatePrimaryLoginState();
+}
+
+function showLoginAlert(msg) {
+  const a = document.getElementById('loginAlert');
+  a.textContent = msg; a.classList.add('visible');
+}
+function clearLoginAlert() {
+  const a = document.getElementById('loginAlert');
+  a.textContent = ''; a.classList.remove('visible');
+}
+
+// Keyboard support
+document.addEventListener('keydown', e => {
+  const loginVisible = !document.getElementById('loginOverlay').classList.contains('hidden');
+  const settingsOpen = document.getElementById('settingsOverlay').classList.contains('open');
+  if (!loginVisible || settingsOpen || isLoginBusy) return;
+  if (/^\d$/.test(e.key))                       { e.preventDefault(); pressPinKey(e.key);  return; }
+  if (e.key === 'Backspace')                    { e.preventDefault(); pressPinKey('back'); return; }
+  if (e.key === 'Delete' || e.key === 'Escape') { e.preventDefault(); pressPinKey('clear'); return; }
+  if (e.key === 'Enter')                        { e.preventDefault(); handlePrimaryLoginAction(); }
+});
+
+// ── CUSTOMIZE: finishLogin / doLogout — تحديث زرار الموظف في الهيدر ─────────
+async function finishLogin(username, displayName) {
+  currentEmployee = { username, displayName };
+  document.getElementById('loginOverlay').classList.add('hidden');
+  showToast(`أهلاً ${displayName} 👋`, 'success');
+  playBeep('success');
+
+  const btn = document.getElementById('activeUserBtn');
+  btn.textContent = '👤 ' + displayName;
+}
+
+async function doLogout() {
+  if (!confirm('تسجيل الخروج؟')) return;
+
+  if (currentEmployee) {
+    apiGet('log_logout', { username: currentEmployee.username }).catch(() => {});
+  }
+
+  currentEmployee = null;
+  loginMode       = 'employee';
+  pinDigits       = [];
+  pendingNewPin   = '';
+  isLoginBusy     = false;
+  clearTimeout(autoLoginTimer);
+
+  const sel = document.getElementById('loginSelect');
+  sel.value = '';
+  document.getElementById('pinSlots').classList.remove('shake');
+  renderPinSlots();
+  renderLoginMode('employee');
+  clearLoginAlert();
+
+  const btn = document.getElementById('activeUserBtn');
+  btn.textContent = '👤 —';
+
+  document.getElementById('loginOverlay').classList.remove('hidden');
+}
+
+function updateLoginSettingsBtnState() {
+  const btn = document.getElementById('loginSettingsBtn');
+  if (!btn) return;
+  btn.classList.toggle('ready',   isConfigured());
+  btn.classList.toggle('missing', !isConfigured());
+}
+
+// ══════════════════════════════════════════════════════
+// §TOOL-JS — Load Logs / Render / Filters / Delete
+// ══════════════════════════════════════════════════════
+async function loadLogs() {
+  if (!isConfigured()) { showToast('أدخل إعدادات الأداة أولاً', 'error'); return; }
+  const cfg = getConfig();
+
+  const order = document.getElementById('filterOrder').value.trim();
+  const key   = document.getElementById('filterKey').value;
+  const date  = document.getElementById('filterDate').value;
+
+  document.getElementById('filterOrder').classList.toggle('active', !!order);
+  document.getElementById('filterKey').classList.toggle('active',   !!key);
+  document.getElementById('filterDate').classList.toggle('active',  !!date);
+
+  if (!order && !key && !date) {
+    showToast('اختر فلتر واحد على الأقل للبحث', 'error');
+    return;
+  }
+
+  document.getElementById('tableBody').innerHTML = `<div class="loading-box"><div class="spinner"></div></div>`;
+
+  const qs = new URLSearchParams();
+  if (order) qs.set('orderId', order.startsWith('#') ? order : '#' + order);
+  if (key)   qs.set('metafieldKey', key);
+  if (date)  qs.set('date', date);
+
+  try {
+    const res  = await fetch(`${cfg.workerUrl.replace(/\/$/, '')}/logs?${qs}`, {
+      headers: { 'Authorization': `Bearer ${cfg.workerSecret}` },
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    const entries = data.entries || [];
+    renderTable(entries);
+    renderStats(entries);
+  } catch (e) {
+    document.getElementById('tableBody').innerHTML =
+      `<div class="empty-state"><div class="empty-icon">❌</div><div class="empty-text">خطأ: ${escHtml(e.message)}</div></div>`;
+    showToast('فشل الاتصال: ' + e.message, 'error');
+  }
+}
+
+function parseFlowTs(ts) {
+  if (!ts) return { date: '—', time: '—' };
+  const m = ts.match(/(\d{4}-\d{2}-\d{2})\s*-\s*(\d{2}:\d{2}:\d{2})/);
+  return m ? { date: m[1], time: m[2] } : { date: ts, time: '' };
+}
+
+function renderTable(entries) {
+  document.getElementById('tableCount').textContent = entries.length.toLocaleString('en-US') + ' entries';
+  if (!entries.length) {
+    document.getElementById('tableBody').innerHTML =
+      `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">لا توجد نتائج</div></div>`;
+    return;
+  }
+  const grouped = {};
+  for (const e of entries) {
+    const k = e.orderName || e.orderId;
+    if (!grouped[k]) grouped[k] = [];
+    grouped[k].push(e);
+  }
+  let html = `<table><thead><tr><th>Order</th><th>Metafield Key</th><th>New Value</th><th>Date</th><th>Time</th><th></th></tr></thead><tbody>`;
+  for (const [orderName, rows] of Object.entries(grouped)) {
+    const firstOrderId = rows[0]?.orderId || null;
+    html += `<tr class="section-divider"><td colspan="6">${orderLink(orderName, firstOrderId)} — ${rows.length} change${rows.length > 1 ? 's' : ''}</td></tr>`;
+    for (const e of rows) {
+      const { date, time } = parseFlowTs(e.flowTimestamp);
+      html += `<tr class="data-row">
+        <td>${orderLink(e.orderName, e.orderId)}</td>
+        <td><span class="key-badge key-${escHtml(e.metafieldKey)}">${escHtml(e.metafieldKey)}</span></td>
+        <td><span class="value-cell" title="${escHtml(e.newValue)}">${escHtml(e.newValue)}</span></td>
+        <td><span class="ts-date">${escHtml(date)}</span></td>
+        <td><span class="ts-time">${escHtml(time)}</span></td>
+        <td><button class="btn btn-danger" onclick="openConfirmDelete('${escHtml(e.id)}','${escHtml(e.orderName)}','${escHtml(e.metafieldKey)}')">حذف</button></td>
+      </tr>`;
+    }
+  }
+  html += `</tbody></table>`;
+  document.getElementById('tableBody').innerHTML = html;
+}
+
+function renderStats(entries) {
+  if (!entries.length) { document.getElementById('statsRow').style.display = 'none'; return; }
+  document.getElementById('statsRow').style.display  = 'flex';
+  document.getElementById('statTotal').textContent   = entries.length.toLocaleString('en-US');
+  document.getElementById('statOrders').textContent  = new Set(entries.map(e => e.orderId)).size.toLocaleString('en-US');
+}
+
+// ── Confirm Dialog — clone + addEventListener (modals-patterns.md §3, MANDATORY) ──
+function showConfirm(message, onConfirm) {
+  document.getElementById('confirmMsg').textContent = message;
+  const oldBtn = document.getElementById('confirmOkBtn');
+  const newBtn = oldBtn.cloneNode(true);
+  oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+  newBtn.addEventListener('click', () => { closeConfirm(); onConfirm(); });
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm()            { document.getElementById('confirmOverlay').classList.remove('open'); }
+function closeConfirmOnBackdrop(e) { if (e.target === e.currentTarget) closeConfirm(); }
+
+function openConfirmDelete(id, orderName, metafieldKey) {
+  showConfirm(`حذف سجل ${orderName} ← ${metafieldKey}؟`, () => deleteEntry(id));
+}
+
+async function deleteEntry(id) {
+  const cfg = getConfig();
+  try {
+    const res = await fetch(`${cfg.workerUrl.replace(/\/$/, '')}/log`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${cfg.workerSecret}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    showToast('تم الحذف', 'success');
+    loadLogs();
+  } catch (e) {
+    showToast('فشل الحذف: ' + e.message, 'error');
+  }
+}
+
+function clearFilters() {
+  document.getElementById('filterOrder').value = '';
+  document.getElementById('filterKey').value   = '';
+  document.getElementById('filterDate').value  = '';
+  ['filterOrder','filterKey','filterDate'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById('tableBody').innerHTML =
+    `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">اختر فلتر للبحث<br>رقم الأوردر أو الـ Key أو التاريخ</div></div>`;
+  document.getElementById('tableCount').textContent = '—';
+  document.getElementById('statsRow').style.display = 'none';
+}
+
+// ══════════════════════════════════════════════════════
+// §HELPERS
+// ══════════════════════════════════════════════════════
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ══════════════════════════════════════════════════════
+// §EVENT-LISTENERS
+// ══════════════════════════════════════════════════════
+document.getElementById('filterOrder').addEventListener('keydown', e => { if (e.key === 'Enter') loadLogs(); });
+document.getElementById('filterKey').addEventListener('change',   () => loadLogs());
+document.getElementById('filterDate').addEventListener('change',  () => loadLogs());
+
+// ══════════════════════════════════════════════════════
+// §INIT
+// ══════════════════════════════════════════════════════
+updateSettingsBtn();
+updateLoginSettingsBtnState();
+loadEmployeesList();
+
+</script>
+</body>
+</html>

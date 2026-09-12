@@ -1,17 +1,15 @@
 // ═══════════════════════════════════════════════════════════════
 // metafields-change-log-worker — الحساب الجديد (ecommoda-dev)
-// v2.1.0
-// skills: worker-builder v2.0.0 · constants v1.4.4 — 05-09-2026
+// v2.2.0
+// skills: worker-builder v3.0.0 · constants v2.2.0 — 12-09-2026
 // D1: DB (ecommoda-dev-logs) — Storage الرئيسي + Auth + Logging
 // Auth: Authorization: Bearer ${WORKER_SECRET}
-//
-// ⚠️ يحتوي على import_logs endpoint مؤقت للـ Migration
-//    يُحذف فور التحقق من نجاح الـ Migration — ثم Deploy فوراً
 // ═══════════════════════════════════════════════════════════════
 //
 // D1 columns المستخدمة:
 //   tool       = 'metafields_change'
 //   type       = 'update'
+//   timestamp  = UTC ISO 8601 — نفس صيغة كل أدوات الستاك
 //   order_id   = Shopify numeric ID
 //   order_name = #12345
 //   notes      = metafieldKey (للفلترة السريعة بدون JSON parse)
@@ -47,7 +45,16 @@ export default {
       return new Response(null, { status: 204, headers: CORS });
     }
 
-    // 2. التحقق من WORKER_SECRET
+    // 2. حارس السر الغايب — لازم قبل فحص الـ auth بالظبط
+    //    من غيره القالب بينتج السلسلة الحرفية "Bearer undefined"، فأي طلب
+    //    معاه الهيدر ده بيعدّي. والحالة مش نظرية: سر اتضاف من غير Promote،
+    //    أو اتمسح، أو Worker شبح — كلها بتدّي env.WORKER_SECRET === undefined.
+    //    وعلى Worker فيه DELETE ده معناه مسح سجل بدون أي مصادقة.
+    if (typeof env.WORKER_SECRET !== 'string' || !env.WORKER_SECRET.trim()) {
+      return json({ ok: false, error: 'WORKER_SECRET غير مضبوط على الـ Worker', step: 'env' }, 500);
+    }
+
+    // 3. التحقق من WORKER_SECRET
     const auth = request.headers.get('Authorization');
     if (!auth || auth !== `Bearer ${env.WORKER_SECRET}`) {
       return json({ error: 'Unauthorized' }, 401);
@@ -109,46 +116,6 @@ export default {
         return json({ ok: true, employees: results });
       }
 
-      // ── ⚠️ import_logs — مؤقت للـ Migration — يُحذف بعد التحقق ──
-
-      if (action === 'import_logs') {
-        if (method !== 'POST') return json({ error: 'POST required' }, 405);
-
-        const { entries = [] } = await request.json().catch(() => ({}));
-        let imported = 0;
-
-        // batches من 50 لتجنب تجاوز حدود D1
-        for (let i = 0; i < entries.length; i += 50) {
-          const batch = entries.slice(i, i + 50);
-          await Promise.all(batch.map(entry => {
-            const numericId = String(entry.orderId || '');
-            const extra     = JSON.stringify({
-              metafieldKey:    entry.metafieldKey    || null,
-              newValue:        entry.newValue        ?? null,
-              flowTimestamp:   entry.flowTimestamp   || null,
-              workerTimestamp: entry.workerTimestamp || null,
-            });
-            return env.DB.prepare(`
-              INSERT INTO logs
-                (timestamp, tool, type, employee, order_id, order_name, notes, extra)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            `).bind(
-              entry.workerTimestamp || new Date().toISOString(),
-              TOOL_NAME,
-              'update',
-              null,
-              numericId            || null,
-              entry.orderName      || null,
-              entry.metafieldKey   || null,
-              extra,
-            ).run().catch(() => {}); // تجاهل أخطاء فردية — لا يوقف الـ batch
-          }));
-          imported += batch.length;
-        }
-
-        return json({ ok: true, imported });
-      }
-
       // ── D1 Log Endpoints (السجل الرئيسي) ─────────────────────
 
       if (method === 'POST'   && url.pathname === '/log')        return handleLog(request, env);
@@ -180,13 +147,14 @@ async function handleLog(request, env) {
 
   const numericId = orderId.includes('/') ? orderId.split('/').pop() : String(orderId);
 
-  // توقيت القاهرة UTC+3
-  const now   = new Date();
-  const cairo = new Date(now.getTime() + 3 * 60 * 60 * 1000);
-  const pad   = n => String(n).padStart(2, '0');
-  const workerTimestamp =
-    `${cairo.getUTCFullYear()}-${pad(cairo.getUTCMonth()+1)}-${pad(cairo.getUTCDate())}` +
-    ` - ${pad(cairo.getUTCHours())}:${pad(cairo.getUTCMinutes())}:${pad(cairo.getUTCSeconds())}`;
+  // ⚠️ UTC ISO — نفس صيغة كل أدوات الستاك. ممنوع أي إزاحة يدوية هنا:
+  //    التخزين UTC، والتحويل لتوقيت القاهرة مكانه طبقة **العرض** (constants §13).
+  //    الصيغة القديمة (`YYYY-MM-DD - HH:MM:SS` بـ UTC+3) كانت بتكسر حاجتين:
+  //      ① الترتيب النصي — ' ' (0x20) أصغر من 'T' (0x54)، فكل صف مكسور بيترتّب
+  //         قبل كل صف سليم في نفس اليوم، و`ORDER BY timestamp DESC LIMIT 1`
+  //         بترجّع الصف الغلط **بلا أي error**.
+  //      ② `new Date('2026-09-04 - 22:16:52')` → Invalid Date في JS.
+  const workerTimestamp = new Date().toISOString();
 
   const extra = JSON.stringify({
     metafieldKey,

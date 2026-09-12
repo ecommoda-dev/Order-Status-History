@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<!-- skills: html-builder v6.3.0 · constants v1.4.4 — 05-09-2026 -->
+<!-- skills: html-builder v7.0.0 · constants v2.2.0 — 12-09-2026 -->
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Metafields Change Log</title>
@@ -696,6 +696,57 @@ function isConfigured() {
   return c.workerUrl.startsWith('http') && c.workerSecret.length > 0;
 }
 
+// ─── §CONFIG::time — constants §13، منسوخة بالحرف (نفس النسخة في الـ Worker) ───
+// ⚠️ ممنوع أي إزاحة مكتوبة ثابت. التوقيت الصيفي في مصر بيخلص 29-10-2026،
+//    والثابت مابيشتكيش لما يبقى غلط — بيخلّي كل وقت معروض غلط بساعة في صمت.
+const CAIRO_TZ = 'Africa/Cairo';
+const _cairoFmt = new Intl.DateTimeFormat('en-CA', {
+  timeZone: CAIRO_TZ, hourCycle: 'h23',
+  year: 'numeric', month: '2-digit', day: '2-digit',
+  hour: '2-digit', minute: '2-digit', second: '2-digit',
+});
+function cairoParts(d) {
+  const o = {};
+  for (const p of _cairoFmt.formatToParts(d)) if (p.type !== 'literal') o[p.type] = p.value;
+  if (o.hour === '24') o.hour = '00';        // حارس: بعض المحركات بترجّع 24
+  return o;
+}
+function cairoDateStr(d = new Date()) { const p = cairoParts(d); return `${p.year}-${p.month}-${p.day}`; }
+
+// ─── §CONFIG::tsParse — الجدول فيه صيغتين، والتانية مش هتختفي ───
+// الصيغة القديمة `YYYY-MM-DD - HH:MM:SS` مكتوبة **بتوقيت القاهرة** أصلاً
+// (UTC+3)، فبتتعرض كما هي **بلا أي تحويل** — أي تحويل عليها بيطلّع رقم غلط
+// بـ٣ ساعات وبيبان سليم. والصيغة الجديدة UTC ISO فبتتحوّل بـ Intl.
+//
+// 🔴 الفرع القديم **دائم مش مؤقت**: الكتلة A (٢٠,٢٨٦ صف، أبريل–مايو ٢٠٢٦)
+//    مقرّر تفضل بصيغتها لأن إزاحتها غير مثبتة — قرار موثّق، مش إهمال.
+const LEGACY_TS_RE = /^(\d{4})-(\d{2})-(\d{2})\s*-\s*(\d{2}):(\d{2})(?::(\d{2}))?$/;
+
+function tsToCairoParts(ts) {
+  if (!ts) return null;
+  const m = String(ts).trim().match(LEGACY_TS_RE);
+  if (m) return { year: m[1], month: m[2], day: m[3], hour: m[4], minute: m[5] };
+  const d = new Date(ts);
+  // حارس إلزامي: formatToParts بترمي RangeError على Invalid Date،
+  // وصف واحد بتاريخ باظ كفاية يوقّع رسم الجدول كله.
+  if (isNaN(d.getTime())) return null;
+  return cairoParts(d);
+}
+
+// الصيغة الموحّدة (datetime-format.md §4 و§4b) — عمودين منفصلين من نفس القيمة
+function formatDate(ts) {
+  const p = tsToCairoParts(ts);
+  return p ? `\u{1F4C5} ${p.day}/${p.month}/${p.year}` : '—';
+}
+function formatTimeOnly(ts) {
+  const p = tsToCairoParts(ts);
+  if (!p) return '—';
+  let h = +p.hour;
+  const ampm = h >= 12 ? 'مساءً' : 'صباحاً';
+  h = h % 12 || 12;
+  return `\u{1F550} ${String(h).padStart(2, '0')}:${p.minute} ${ampm}`;
+}
+
 // ══════════════════════════════════════════════════════
 // §ORDER-LINK — Order Number Display (design-system.md — إلزامي)
 // ══════════════════════════════════════════════════════
@@ -1141,12 +1192,6 @@ async function loadLogs() {
   }
 }
 
-function parseFlowTs(ts) {
-  if (!ts) return { date: '—', time: '—' };
-  const m = ts.match(/(\d{4}-\d{2}-\d{2})\s*-\s*(\d{2}:\d{2}:\d{2})/);
-  return m ? { date: m[1], time: m[2] } : { date: ts, time: '' };
-}
-
 function renderTable(entries) {
   document.getElementById('tableCount').textContent = entries.length.toLocaleString('en-US') + ' entries';
   if (!entries.length) {
@@ -1165,13 +1210,15 @@ function renderTable(entries) {
     const firstOrderId = rows[0]?.orderId || null;
     html += `<tr class="section-divider"><td colspan="6">${orderLink(orderName, firstOrderId)} — ${rows.length} change${rows.length > 1 ? 's' : ''}</td></tr>`;
     for (const e of rows) {
-      const { date, time } = parseFlowTs(e.flowTimestamp);
+      // القيمة الخام مباشرةً — ممنوع استخراج الوقت من نص معروض (datetime-format.md §4b).
+      // flowTimestamp هو وقت التغيير نفسه؛ العمود timestamp وقت كتابة السجل.
+      const ts = e.flowTimestamp || e.workerTimestamp;
       html += `<tr class="data-row">
         <td>${orderLink(e.orderName, e.orderId)}</td>
         <td><span class="key-badge key-${escHtml(e.metafieldKey)}">${escHtml(e.metafieldKey)}</span></td>
         <td><span class="value-cell" title="${escHtml(e.newValue)}">${escHtml(e.newValue)}</span></td>
-        <td><span class="ts-date">${escHtml(date)}</span></td>
-        <td><span class="ts-time">${escHtml(time)}</span></td>
+        <td><span class="ts-date">${escHtml(formatDate(ts))}</span></td>
+        <td><span class="ts-time">${escHtml(formatTimeOnly(ts))}</span></td>
         <td><button class="btn btn-danger" onclick="openConfirmDelete('${escHtml(e.id)}','${escHtml(e.orderName)}','${escHtml(e.metafieldKey)}')">حذف</button></td>
       </tr>`;
     }

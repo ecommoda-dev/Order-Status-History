@@ -18,7 +18,7 @@
 |---|---|
 | `index.js` | الـ Cloudflare Worker — Auth · تسجيل التغييرات · endpoints السجل |
 | `index.html` | الواجهة — شاشة دخول + جدول موحّد بفلاتر وترتيب وصفحات وتصدير |
-| `Index.html` | صفحة تحويل للرابط القديم |
+| ~~`Index.html`~~ | اتشالت — 23-09-2026، قرار أحمد. الرابط الوحيد: `https://ecommoda-dev.github.io/Order-Status-History/` |
 | `wrangler.toml` | إعداد النشر + ربط D1 |
 
 ## البداية

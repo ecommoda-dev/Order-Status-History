@@ -11,6 +11,11 @@
       "result": null,
       "stage": null,
       "desc": "خروج موظف"
+    },
+    "update": {
+      "result": null,
+      "stage": null,
+      "desc": "تحديث ميتافيلد وصل من Shopify Flow (POST /log) — تغيير S1/S2/الدفع/الكوريير. مكتوبة بـ INSERT مباشر في handleLog مش عن طريق writeLog()، فالتحقق الساكن ماكانش شايفها (اسم النوع نص ثابت 'update' في .bind() موضعي، مش object-literal type: بيدوّر عليه check-log-values.mjs)."
     }
   }
 }

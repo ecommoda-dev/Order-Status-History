@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
 // metafields-change-log-worker — الحساب الجديد (ecommoda-dev)
-// v2.3.0
-// skills: worker-builder v3.0.0 · constants v2.2.0 — 17-09-2026
+// v2.3.1
+// skills: worker-builder v3.8.0 · constants v3.1.0 — 24-09-2026
 // D1: DB (ecommoda-dev-logs) — Storage الرئيسي + Auth + Logging
 // Auth: Authorization: Bearer ${WORKER_SECRET}
 // ═══════════════════════════════════════════════════════════════
@@ -26,7 +26,7 @@
 // ══════════════════════════════════════════════════════
 
 const TOOL_NAME      = 'metafields_change';
-const WORKER_VERSION = '2.3.0';
+const WORKER_VERSION = '2.3.1';
 const ALLOWED_KEYS   = ['manual_status', 'status_2_r_e', 'payment', 'courier'];
 
 // ══════════════════════════════════════════════════════
@@ -66,6 +66,58 @@ function json(data, status = 200, request = null) {
 // `YYYY-MM-DD - HH:MM:SS` بتوقيت القاهرة. الفحص ده بيعدّ القديمة عشان
 // تقدر تتابع تقدّم الـ backfill من `?action=diag`.
 const LEGACY_TS_SQL = `timestamp NOT LIKE '____-__-__T%'`;
+
+// ══════════════════════════════════════════════════════
+// §LOG-REG — الحارس الديناميكي لقيم اللوج (الطبقة ٥)
+// ══════════════════════════════════════════════════════
+// قطعة الأداة دي بس من log-values.json اللي جنبها — بتتحدّث معاه في نفس الـ
+// commit. مفيش رفض كتابة أبدًا على قيمة غير مسجّلة — الصف بيتكتب عادي +
+// extra._unregistered + تنبيه صامت في log_value_alerts (worker-builder Step 7-ج).
+const LOG_REGISTRY = {
+  metafields_change: new Set(['login', 'logout', 'update']),
+};
+
+const isRegisteredLogValue = (tool, type) => !!LOG_REGISTRY[tool]?.has(type);
+
+// UPSERT على (source_tool, tool, type) — صف واحد لكل قيمة، hits بيعدّ.
+const LOG_ALERT_SQL = `
+  INSERT INTO log_value_alerts
+    (source_tool, tool, type, first_seen, last_seen, hits,
+     worker_version, sample_order_name, sample_employee, sample_notes)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  ON CONFLICT(source_tool, tool, type) DO UPDATE SET
+    last_seen         = excluded.last_seen,
+    hits              = log_value_alerts.hits + excluded.hits,
+    worker_version    = excluded.worker_version,
+    sample_order_name = excluded.sample_order_name,
+    sample_employee   = excluded.sample_employee,
+    sample_notes      = excluded.sample_notes,
+    status            = CASE WHEN log_value_alerts.status = 'ignored'
+                             THEN 'ignored' ELSE 'open' END
+`;
+
+// فشل التنبيه ممنوع يأثر على أي حاجة — try/catch صامت. بتجمّع التكرار جوّه
+// نفس الدفعة في صف واحد (hits) قبل ما تكتب.
+async function noteUnregisteredLogValues(db, entries) {
+  const byPair = new Map();
+  for (const e of entries) {
+    const key = `${e.tool}\u0000${e.type}`;
+    const acc = byPair.get(key);
+    if (acc) { acc.hits++; continue; }
+    byPair.set(key, { entry: e, hits: 1 });
+  }
+  const now = new Date().toISOString();
+  for (const { entry, hits } of byPair.values()) {
+    try {
+      await db.prepare(LOG_ALERT_SQL).bind(
+        TOOL_NAME, entry.tool ?? '(بدون tool)', entry.type ?? '(بدون type)',
+        now, now, hits, WORKER_VERSION,
+        entry.orderName ?? null, entry.employee ?? null,
+        entry.notes ? String(entry.notes).slice(0, 200) : null,
+      ).run();
+    } catch (e) { /* متعمّد: التنبيه فهرس، وفشله أهون من تعطيل الأداة */ }
+  }
+}
 
 // ══════════════════════════════════════════════════════
 // §SHARED — copy verbatim — never modify
@@ -121,6 +173,13 @@ async function registerPin(db, username, pin) {
 }
 
 async function writeLog(db, entry) {
+  // §LOG-REG — الحارس الديناميكي (الطبقة ٥): مفيش رفض كتابة أبدًا، الصف
+  // بيتكتب عادي + علامة _unregistered لو الزوج (tool,type) مش مسجّل.
+  const unregistered = !isRegisteredLogValue(entry.tool, entry.type);
+  const extra = unregistered
+    ? { ...(entry.extra || {}), _unregistered: true }
+    : entry.extra;
+
   await db.prepare(`
     INSERT INTO logs
       (timestamp, tool, type, employee, order_id, order_name,
@@ -139,8 +198,10 @@ async function writeLog(db, entry) {
     entry.valueBefore  ?? null,
     entry.valueAfter   ?? null,
     entry.notes        ?? null,
-    entry.extra ? JSON.stringify(entry.extra) : null
+    extra ? JSON.stringify(extra) : null
   ).run();
+
+  if (unregistered) await noteUnregisteredLogValues(db, [entry]);
 }
 
 const LOG_EXPORT_MAX = 2000;   // سقف التصدير — بيرجع للواجهة كـ `cap`
@@ -537,12 +598,17 @@ async function handleLog(request, env) {
   //      ② `new Date('2026-09-04 - 22:16:52')` → Invalid Date في JS.
   const workerTimestamp = new Date().toISOString();
 
-  const extra = JSON.stringify({
+  // §LOG-REG — الحارس الديناميكي (الطبقة ٥): النداء ده بيكتب بـ INSERT مباشر
+  // مش عن طريق writeLog()، فمحتاج نفس الحارس هنا بالظبط — مفيش رفض كتابة أبدًا.
+  const unregistered = !isRegisteredLogValue(TOOL_NAME, 'update');
+  const extraObj = {
     metafieldKey,
     newValue,
     flowTimestamp:   flowTimestamp || null,
     workerTimestamp,
-  });
+    ...(unregistered ? { _unregistered: true } : {}),
+  };
+  const extra = JSON.stringify(extraObj);
 
   // 🔴 الـ id بيتقرا من `meta.last_row_id` بتاعة نفس النداء — مش باستعلام
   //    تاني. النمط القديم (`SELECT last_insert_rowid()`) كان بيفتح نافذة
@@ -555,6 +621,12 @@ async function handleLog(request, env) {
     workerTimestamp, TOOL_NAME, 'update', null,
     numericId, orderName, metafieldKey, extra,
   ).run();
+
+  if (unregistered) {
+    await noteUnregisteredLogValues(env.DB, [{
+      tool: TOOL_NAME, type: 'update', orderName, employee: null, notes: metafieldKey,
+    }]);
+  }
 
   return json({ success: true, id: res?.meta?.last_row_id ?? null }, 200, request);
 }
